@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="VÉRANO">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#47474A"/><stop offset="1" stop-color="#262628"/></linearGradient><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14.879999999999999" stdDeviation="17.36" flood-color="#000" flood-opacity=".22"/></filter></defs>
+<rect width="800" height="1000" fill="url(#g)"/><path d="M144 920 V420 A256 256 0 0 1 656 420 V920Z" fill="#3b3b3e" opacity=".5"/><g transform="translate(152 210) scale(1.24) " fill="#8FA8C4" color="#8FA8C4" filter="url(#sh)"><path d="M135 70 L265 70 L288 445 L215 445 L200 195 L185 445 L112 445Z"/><path d="M135 96 L265 96 M200 96 L200 195" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="3"/></g>
+<text x="56.00000000000001" y="930" font-family="Georgia, 'Times New Roman', serif" font-size="27.200000000000003" fill="#111" opacity=".8" letter-spacing="3">VÉRANO</text>
+<text x="56.00000000000001" y="894" font-family="Georgia, serif" font-style="italic" font-size="20.8" fill="#111" opacity=".55">Wide-Leg Jeans</text>
+</svg>

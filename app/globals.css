@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --soft: #f7f7f5;
+  --ink: #111111;
+  --muted: #6b6b6b;
+  --line: #e8e8e8;
+}
+
+html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--ink); color: #fff; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@layer components {
+  .container-wide { @apply mx-auto w-full max-w-[1600px] px-5 md:px-10 lg:px-14; }
+  .eyebrow { @apply text-[11px] font-medium uppercase tracking-[0.28em] text-muted; }
+  .display { @apply font-display font-light leading-[0.95] tracking-tight; }
+  .link-underline { @apply relative inline-block; }
+  .link-underline::after {
+    content: ""; @apply absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-current transition-transform duration-500;
+  }
+  .link-underline:hover::after, .link-underline[aria-current="page"]::after { @apply origin-left scale-x-100; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .section-y { @apply py-20 md:py-32; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Safe-area padding for mobile bottom nav */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
