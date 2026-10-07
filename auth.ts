@@ -59,7 +59,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, user, trigger }) {
       const now = Date.now();
-      const stale = !token.checkedAt || now - token.checkedAt > REFRESH_MS;
+      const checkedAt = Number(token.checkedAt || 0);
+      const stale = !checkedAt || now - checkedAt > REFRESH_MS;
       if (user || stale || trigger === "update") {
         await connectDB();
         const db = await User.findOne({ email: (user?.email || token.email || "").toLowerCase() }).lean<any>();
@@ -76,8 +77,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     session({ session, token }) {
       if (!token.id) return { ...session, user: undefined as any };
-      session.user.id = token.id;
-      session.user.role = token.role || "USER";
+      session.user.id = token.id as string;
+      session.user.role = (token.role as string) || "USER";
       return session;
     },
   },

@@ -9,7 +9,7 @@ import { checkoutSchema } from "@/lib/validators";
 import { validateCoupon } from "@/lib/coupons";
 import { computeTotals } from "@/lib/pricing";
 import { getSettings } from "@/lib/data";
-import { commitOrderStock, releaseOrderStock, releaseStaleReservations, uniqueOrderNumber } from "@/lib/orders";
+import { commitOrderStock, releaseStaleReservations, uniqueOrderNumber } from "@/lib/orders";
 import { createRazorpayOrder, razorpayConfigured } from "@/lib/razorpay";
 import { rateLimit } from "@/lib/rate-limit";
 
