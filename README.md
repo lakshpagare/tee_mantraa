@@ -1,4 +1,4 @@
-# VÉRANO — Premium Clothing E-commerce
+# tee-mantraa — Premium Clothing E-commerce
 
 A complete Next.js (App Router) fashion storefront with customer accounts, cart, checkout (Razorpay + Cash on Delivery),
 orders, reviews, coupons, a full admin panel, a homepage CMS and analytics. Visual language is inspired by editorial
@@ -6,6 +6,65 @@ fashion sites: large imagery, serif display type, generous whitespace, restraine
 
 > **Status:** this codebase was written without the ability to run `npm install`, `npm run build` or `npm run lint`.
 > Expect to fix a handful of type/lint errors on the first build. See [First run checklist](#first-run-checklist).
+
+## What's new (advanced features)
+
+Razorpay **webhook** · transactional **emails** (placed/shipped/delivered/cancelled, returns, back-in-stock, low-stock admin alert, abandoned cart) ·
+GST **invoice** (print / save as PDF) · **returns & exchanges** flow · **pincode** delivery/COD check · **size advisor** ·
+product **video** · **compare** (up to 3) · **recently viewed** · **complete the look** · customer **photo gallery** in reviews ·
+**back-in-stock** alerts · **gift cards** · **loyalty points** + **referral codes** · **journal** (blog) · **lookbook** ·
+**live Instagram** grid · **WhatsApp** chat button · **PWA** (installable + offline page) · GA4 / Meta Pixel events ·
+**STAFF / ADMIN / SUPER_ADMIN** roles with a Team page · CSV exports (orders, customers) · courier tracking links ·
+Redis (Upstash) rate limiting · cached homepage/catalog reads · Playwright smoke tests · custom cursor.
+
+### Setting up the new features
+
+| Feature | What to configure |
+|---|---|
+| Emails | `RESEND_API_KEY`, `MAIL_FROM` (without a key, emails are logged to the server console) |
+| Razorpay webhook | Dashboard → Webhooks → `https://YOUR-DOMAIN/api/payments/webhook`, events `payment.captured`, `order.paid`, `payment.failed`; secret → `RAZORPAY_WEBHOOK_SECRET` |
+| UPI / EMI / Pay Later | Enable the methods in the Razorpay Dashboard; Razorpay Checkout then shows them automatically |
+| Invoices | Admin → Settings → business name, GSTIN, address, state |
+| Pincode check | Admin → Settings → unserviceable PIN codes (ETAs are estimated from the PIN zone; swap in a courier API for exact dates) |
+| WhatsApp button | Admin → Settings → WhatsApp number with country code (e.g. `919876543210`) |
+| Low-stock alerts | Admin → Settings → Admin alert email (falls back to contact email) |
+| Abandoned carts | Set `CRON_SECRET`; `vercel.json` runs `/api/cron/abandoned-carts` daily (Vercel Hobby allows daily crons only) |
+| Analytics | `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_META_PIXEL_ID` |
+| Redis rate limiting | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` |
+| Instagram feed | `INSTAGRAM_ACCESS_TOKEN` (long-lived); otherwise the CMS images are used |
+| Roles | `npm run seed -- --admin-only` makes your admin a **SUPER_ADMIN**; then use Admin → Team & roles |
+| E2E tests | `npm run test:e2e:install` once, then `npm run test:e2e` (needs a seeded database) |
+
+**Loyalty rules** (change in `lib/pricing.ts`): 1 point per ₹100 when an order is delivered; 1 point = ₹1; redeem up to 20% of an order.
+Referral: new user gets 50 points; the referrer gets 100 when the friend's first order is delivered.
+Gift cards are issued by admins (Admin → Gift cards) — there is no online gift-card purchase flow yet.
+
+### Second round of features
+
+**WhatsApp (two ways):** automatic order messages through the **WhatsApp Business Cloud API** (needs a Meta Business account; customers opt in at checkout) *and* manual one-tap sending from your **personal / Business WhatsApp** on every order (Admin → Orders → open an order).
+**Dark mode** (toggle in the header; remembers the choice; admin stays light) · **Sentry** error tracking (inert until a DSN is set) ·
+**Offers** (percentage, buy-X-get-Y, bundle price) with automatic best-offer pricing · **Flash sales** with live countdown and reduced prices ·
+**Cart upsell** suggestions (also steers toward free shipping) · **Customer order cancel** (until shipped; auto Razorpay refund) ·
+**Short wishlist share links** (`/w/abc123`, WhatsApp/native share) · **Admin activity log** · **Profit report** · **Smarter search**
+(typo tolerance, synonyms, ranking, "did you mean", suggestions, live trending).
+
+| Feature | Setup |
+|---|---|
+| WhatsApp Business API | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` (Meta → WhatsApp → API setup). Test it in Admin → Settings → *Send test*. |
+| WhatsApp templates | Meta only delivers free-text within 24h of a customer message. For order updates, create approved templates and set `WHATSAPP_USE_TEMPLATES=true`. Suggested body text — **order_placed**: `Hi {{1}}, thanks for your order {{2}}! Total {{3}}.` · **order_shipped**: `Hi {{1}}, order {{2}} has shipped: {{3}}.` · **order_delivered**: `Hi {{1}}, order {{2}} was delivered.` · **order_cancelled**: `Hi {{1}}, order {{2}} was cancelled.` · **order_returned**: `Hi {{1}}, order {{2}} is marked returned.` (language code in `WHATSAPP_TEMPLATE_LANG`). |
+| Personal WhatsApp | Nothing to set up. Buttons on each order open WhatsApp with the message pre-filled using the customer's phone number. |
+| Sentry | `NEXT_PUBLIC_SENTRY_DSN` (+ `SENTRY_DSN`); optionally `SENTRY_ORG/PROJECT/AUTH_TOKEN` for source maps. |
+| Offers / flash sales | Admin → *Offers & flash sales*. The single best offer applies; coupons stack on top. Flash sales: percentage only, need an end date, scope = all / categories / products. |
+| Profit report | Fill **Cost price** on products. Set the gateway fee % in Settings. Needs ADMIN role (hidden from STAFF). |
+| Activity log | Automatic. Admin → *Activity log* (ADMIN and above). |
+
+**Search notes:** the index is built from the catalogue and cached ~5 minutes (and refreshed when products change in admin). It's designed for up to a few thousand products; for bigger catalogues swap `searchProducts()` in `lib/search.ts` for Algolia/Meilisearch.
+**Cancel & refunds:** customers can cancel in *Pending / Confirmed / Processing*. Paid Razorpay orders are refunded automatically; if that call fails the order timeline tells you to refund from the Razorpay dashboard.
+
+### Not included (needs accounts, assets or a larger refactor)
+
+Variant-wise (size × colour) stock · Shiprocket/Delhivery **API** integration (tracking links are supported) ·
+multi-language (Marathi/Hindi) · multi-currency · 360° product view · online gift-card purchase · dark mode in the admin panel.
 
 ## Features
 
@@ -48,7 +107,7 @@ npm run dev                    # http://localhost:3000
 ## Environment variables
 
 See `.env.example`. Required: `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_APP_URL`.
-Optional: Google (`GOOGLE_CLIENT_ID/SECRET`), Cloudinary, Razorpay, Resend (`RESEND_API_KEY`), `REQUIRE_EMAIL_VERIFICATION`.
+Optional: Google (`GOOGLE_CLIENT_ID/SECRET`, `NEXT_PUBLIC_GOOGLE_ENABLED`), Cloudinary, Razorpay, Resend (`RESEND_API_KEY`), `REQUIRE_EMAIL_VERIFICATION`.
 Seed: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (min 10 chars), `SEED_ADMIN_NAME`.
 Generate a secret with `openssl rand -base64 32`. Secret keys are only read on the server; the only `NEXT_PUBLIC_` values
 are the app URL and (optionally) the Razorpay **key id**.
@@ -57,8 +116,8 @@ are the app URL and (optionally) the Razorpay **key id**.
 
 1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas).
 2. Create a database user, and allow your IP (for Vercel: allow `0.0.0.0/0` or use Atlas's Vercel integration).
-3. Copy the connection string into `MONGODB_URI` (include the database name, e.g. `/verano`).
-Local alternative: `mongodb://127.0.0.1:27017/verano`.
+3. Copy the connection string into `MONGODB_URI` (include the database name, e.g. `/tee-mantraa`).
+Local alternative: `mongodb://127.0.0.1:27017/tee-mantraa`.
 
 ## Authentication setup
 
@@ -66,8 +125,8 @@ Local alternative: `mongodb://127.0.0.1:27017/verano`.
   reset links are logged to the server console (and shown on screen). In production set `RESEND_API_KEY` + `MAIL_FROM`.
 - **Google**: create OAuth credentials in Google Cloud Console → *Authorized redirect URI*:
   `http://localhost:3000/api/auth/callback/google` (and your production URL). Set `GOOGLE_CLIENT_ID/SECRET`.
-  If unset, the Google button is shown but sign-in will fail — hide it in `components/auth/login-form.tsx` if you prefer.
-- Roles: `USER`, `ADMIN` in use; `STAFF` and `SUPER_ADMIN` exist in the enum for future work (`lib/constants.ts`).
+  Then set `NEXT_PUBLIC_GOOGLE_ENABLED=true` to show the "Continue with Google" button (it is hidden by default).
+- Roles: `USER`, `STAFF` (orders, returns, customers, inventory, reviews, dashboard), `ADMIN` (everything except team), `SUPER_ADMIN` (everything). Permissions live in `lib/constants.ts` (`canAccess`).
 
 ## Cloudinary setup
 
@@ -82,9 +141,7 @@ returns a clear error). Any `https://res.cloudinary.com/...` URL is optimised by
 3. Flow: `/api/checkout` validates the cart **server-side** (prices come from the DB), reserves stock, creates the order and a
    Razorpay order → Checkout opens → `/api/payments/verify` checks the HMAC signature with the secret → stock is committed.
    Abandoned unpaid orders release their reservation after 30 minutes. Customers can retry from `/order/[id]`.
-4. **Recommended before launch:** add a Razorpay webhook (`payment.captured`) for the edge case where a customer pays and
-   closes the tab before verification. The order is left reviewable (“Paid after reservation expired”) but a webhook is the
-   robust fix.
+4. The webhook (`/api/payments/webhook`) confirms orders even if the customer closes the tab before the browser callback — configure it (see table above).
 If keys are missing, online payment returns a friendly error and COD still works.
 
 ## Admin setup
@@ -163,6 +220,6 @@ scripts/           seed.ts, generate-images.mjs, catalog.mjs
 
 - Not compiled or run by the author; see checklist.
 - Placeholder SVG artwork instead of photography.
-- No Razorpay webhook, no real email provider configured by default, no shipping-carrier integration.
+- No real email provider configured by default; no shipping-carrier API integration.
 - Conversion-rate analytics needs a traffic source (GA4/Plausible); the UI shows the structure.
 - Default Privacy/Terms pages contain placeholder text that needs legal review.

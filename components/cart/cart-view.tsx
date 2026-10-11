@@ -8,6 +8,8 @@ import { Img } from "@/components/ui/img";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CouponBox, TotalsTable } from "@/components/cart/order-summary";
 import { FreeShippingBar } from "@/components/cart/free-shipping-bar";
+import { UpsellStrip } from "@/components/cart/upsell-strip";
+import { RecentlyViewed } from "@/components/product/recently-viewed";
 import { QtyStepper } from "@/components/cart/qty-stepper";
 import { useCartTotals } from "@/hooks/use-cart-totals";
 import { useCart } from "@/store/cart";
@@ -18,7 +20,7 @@ import { formatINR } from "@/lib/utils";
 export function CartView() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const { items, couponCode, error, applying, apply, remove, subtotal, totals } = useCartTotals();
+  const { items, couponCode, error, applying, apply, remove, subtotal, totals, offer } = useCartTotals();
   const { setQty, remove: removeItem } = useCart();
   const toggleWish = useWishlist((s) => s.toggle);
 
@@ -41,7 +43,7 @@ export function CartView() {
                     <p className="text-sm">{formatINR(i.price * i.quantity)}</p>
                   </div>
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
-                    <QtyStepper value={i.quantity} max={i.maxQty} onChange={(n) => setQty(i.key, n)} />
+                    <QtyStepper value={i.quantity} max={Math.min(10, i.maxQty)} onChange={(n) => setQty(i.key, n)} />
                     <div className="flex gap-5 text-xs uppercase tracking-[0.16em]">
                       <button className="link-underline" onClick={async () => { if (!useWishlist.getState().has(i.productId)) await toggleWish(i.productId); removeItem(i.key); toast("Moved to wishlist"); }}>Move to wishlist</button>
                       <button className="link-underline flex items-center gap-1" onClick={() => removeItem(i.key)} aria-label={`Remove ${i.name}`}><X className="h-3.5 w-3.5" />Remove</button>
@@ -51,16 +53,19 @@ export function CartView() {
               </li>
             ))}
           </ul>
+          <UpsellStrip className="mt-10" />
         </div>
 
         <aside className="h-fit space-y-6 bg-soft p-6 md:p-8 lg:sticky lg:top-28" aria-label="Order summary">
           <h2 className="font-display text-3xl">Order summary</h2>
           <CouponBox code={couponCode} error={error} applying={applying} onApply={apply} onRemove={remove} />
+          {offer.hint && <p className="border border-dashed border-line p-3 text-xs text-muted">💡 {offer.hint}</p>}
           <TotalsTable t={totals} />
           <ButtonLink href="/checkout" size="lg" className="w-full">Proceed to checkout</ButtonLink>
           <p className="text-center text-xs text-muted">Secure checkout · 7-day returns</p>
         </aside>
       </div>
+      <div className="-mx-5 mt-20 md:-mx-10 lg:-mx-14"><RecentlyViewed title="Recently viewed" /></div>
     </div>
   );
 }

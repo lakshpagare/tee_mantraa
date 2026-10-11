@@ -3,12 +3,16 @@ import { Stars } from "@/components/ui/stars";
 import { Price } from "@/components/ui/price";
 import { Accordion } from "@/components/ui/accordion";
 import { VariantPicker } from "@/components/product/variant-picker";
+import { PincodeChecker } from "@/components/product/pincode-checker";
+import { CompareToggle } from "@/components/product/compare";
+import { Countdown, useFlashPrice } from "@/components/flash-sale";
 import { useSite } from "@/hooks/use-site";
 import { formatINR } from "@/lib/utils";
 import type { ProductDTO } from "@/types";
 
 export function ProductDetails({ product, category }: { product: ProductDTO; category: string }) {
   const { freeShippingThreshold } = useSite();
+  const flash = useFlashPrice(product);
   return (
     <div className="lg:sticky lg:top-28">
       <p className="eyebrow">{category}</p>
@@ -18,11 +22,14 @@ export function ProductDetails({ product, category }: { product: ProductDTO; cat
           <a href="#reviews" className="flex items-center gap-2"><Stars value={product.rating} /><span className="text-xs text-muted underline">{product.rating.toFixed(1)} · {product.reviewCount} reviews</span></a>
         ) : <span className="text-xs text-muted">No reviews yet</span>}
       </div>
-      <Price price={product.price} compareAt={product.compareAtPrice} showBadge className="mt-5 text-xl" />
+      <Price price={flash ? flash.price : product.price} compareAt={flash ? Math.max(product.price, product.compareAtPrice || 0) : product.compareAtPrice} showBadge className={`mt-5 text-xl ${flash ? "text-[#B4231B]" : ""}`} />
       <p className="mt-1 text-xs text-muted">Inclusive of all taxes</p>
+      {flash && <p className="mt-3 inline-flex items-center gap-2 border border-[#B4231B] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#B4231B]">⚡ {flash.label} · ends in <Countdown endsAt={flash.endsAt} className="tabular-nums" /></p>}
       {product.shortDescription && <p className="mt-6 text-sm leading-relaxed text-muted">{product.shortDescription}</p>}
 
       <div className="mt-8"><VariantPicker product={product} /></div>
+      <div className="mt-6 flex items-center justify-between"><CompareToggle productId={product._id} /><span className="text-[11px] uppercase tracking-[0.18em] text-muted">UPI · Cards · EMI · COD</span></div>
+      <div className="mt-8"><PincodeChecker /></div>
 
       <div className="mt-10">
         <Accordion

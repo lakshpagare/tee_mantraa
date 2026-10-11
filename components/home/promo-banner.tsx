@@ -3,7 +3,7 @@ import { Reveal } from "@/components/motion";
 
 export function PromoBanner({ data }: { data: Record<string, string> }) {
   return (
-    <section className="bg-ink py-20 text-center text-white md:py-28">
+    <section className="bg-ink py-20 text-center text-paper md:py-28">
       <div className="container-wide">
         <Reveal><h2 className="display text-6xl md:text-[8rem]">{data.heading}</h2></Reveal>
         <Reveal delay={0.1}><p className="mt-4 font-display text-2xl italic text-white/80">{data.subheading}</p></Reveal>

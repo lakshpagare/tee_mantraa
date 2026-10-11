@@ -11,7 +11,7 @@ import { useUI } from "@/store/ui";
 import { TRENDING_SEARCHES } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 
-const KEY = "verano-recent-searches";
+const KEY = "tee-mantraa-recent-searches";
 
 export function SearchOverlay() {
   const { searchOpen, setSearchOpen } = useUI();
@@ -19,7 +19,8 @@ export function SearchOverlay() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
   const dq = useDebounce(q.trim(), 250);
-  const [res, setRes] = useState<{ products: any[]; categories: any[] } | null>(null);
+  const [res, setRes] = useState<{ products: any[]; categories: any[]; suggestions?: string[]; didYouMean?: string | null } | null>(null);
+  const [trending, setTrending] = useState<string[]>(TRENDING_SEARCHES);
   const [loading, setLoading] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
   useLockScroll(searchOpen);
@@ -28,6 +29,7 @@ export function SearchOverlay() {
     if (!searchOpen) return;
     try { setRecent(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch { setRecent([]); }
     setTimeout(() => inputRef.current?.focus(), 150);
+    fetch("/api/search/trending").then((r) => r.json()).then((d) => d.terms?.length && setTrending(d.terms)).catch(() => {});
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSearchOpen(false);
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -47,6 +49,7 @@ export function SearchOverlay() {
   const go = (term: string) => {
     const t = term.trim();
     if (!t) return;
+    fetch("/api/search/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q: t, results: term === q ? res?.products.length ?? 0 : 1 }), keepalive: true }).catch(() => {});
     try { localStorage.setItem(KEY, JSON.stringify([t, ...recent.filter((r) => r !== t)].slice(0, 5))); } catch {}
     setSearchOpen(false);
     setQ("");
@@ -61,7 +64,7 @@ export function SearchOverlay() {
           <motion.div className="absolute inset-0 bg-black/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close} />
           <motion.div
             role="dialog" aria-modal="true" aria-label="Search" data-lenis-prevent
-            className="relative max-h-[92vh] overflow-y-auto bg-white"
+            className="relative max-h-[92vh] overflow-y-auto bg-paper"
             initial={{ y: "-100%" }} animate={{ y: 0 }} exit={{ y: "-100%" }} transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
           >
             <div className="container-wide py-6 md:py-10">
@@ -82,12 +85,16 @@ export function SearchOverlay() {
                   )}
                   <div>
                     <p className="eyebrow mb-3">Trending</p>
-                    <ul className="space-y-2">{TRENDING_SEARCHES.map((r) => <li key={r}><button onClick={() => go(r)} className="link-underline text-sm">{r}</button></li>)}</ul>
+                    <ul className="space-y-2">{trending.map((r) => <li key={r}><button onClick={() => go(r)} className="link-underline text-sm">{r}</button></li>)}</ul>
                   </div>
                 </div>
 
                 <div aria-live="polite">
                   {loading && <p className="text-sm text-muted">Searching…</p>}
+                  {res?.didYouMean && <p className="mb-4 text-sm">Showing results for <button onClick={() => { setQ(res.didYouMean!); }} className="font-medium underline">{res.didYouMean}</button></p>}
+                  {res && !!res.suggestions?.length && (
+                    <ul className="mb-6 flex flex-wrap gap-2" aria-label="Suggestions">{res.suggestions.map((s) => <li key={s}><button onClick={() => go(s)} className="border border-line px-3 py-1.5 text-xs hover:border-ink">{s}</button></li>)}</ul>
+                  )}
                   {!loading && res && res.products.length === 0 && res.categories.length === 0 && (
                     <div><p className="font-display text-3xl">No results for “{dq}”</p><p className="mt-2 text-sm text-muted">Check the spelling or try a broader term like “shirt” or “jeans”.</p></div>
                   )}

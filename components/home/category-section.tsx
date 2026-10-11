@@ -8,6 +8,7 @@ const href = (c: CategoryDTO) => (c.slug === "new-arrivals" ? "/shop?new=1" : `/
 
 export function CategorySection({ data, categories }: { data: Record<string, any>; categories: CategoryDTO[] }) {
   if (!categories.length) return null;
+  const feature = categories.length % 2 === 1;
   return (
     <section className="section-y">
       <div className="container-wide">
@@ -20,17 +21,18 @@ export function CategorySection({ data, categories }: { data: Record<string, any
         </Reveal>
 
         {/* Mobile: swipe row. Desktop: editorial grid. */}
+        {/* A featured 2x2 card only tiles cleanly when the total is odd; otherwise use a uniform grid. */}
         <ul className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0">
           {categories.map((c, i) => (
-            <li key={c._id} className={`w-[72%] shrink-0 snap-start md:w-auto ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
+            <li key={c._id} className={`w-[72%] shrink-0 snap-start md:w-auto ${feature && i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
               <Link href={href(c)} className="group relative block h-full overflow-hidden">
                 <ImageReveal delay={(i % 4) * 0.08}>
-                  <Img src={c.image || ""} alt={c.name} ratio={i === 0 ? "4/5" : "4/5"} sizes="(max-width:768px) 72vw, (max-width:1200px) 50vw, 33vw" imgClassName="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]" />
+                  <Img src={c.image || ""} alt={c.name} ratio="4/5" sizes="(max-width:768px) 72vw, (max-width:1200px) 50vw, 33vw" imgClassName="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]" />
                 </ImageReveal>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5 text-white md:p-6">
                   <div className="transition-transform duration-500 group-hover:-translate-y-1">
-                    <h3 className={`font-display font-light ${i === 0 ? "text-5xl" : "text-3xl"}`}>{c.name}</h3>
+                    <h3 className={`font-display font-light ${feature && i === 0 ? "text-5xl" : "text-3xl"}`}>{c.name}</h3>
                     <span className="mt-1 inline-block text-[10px] uppercase tracking-[0.25em] opacity-90">Explore</span>
                   </div>
                   <ArrowUpRight className="h-6 w-6 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" strokeWidth={1.25} />

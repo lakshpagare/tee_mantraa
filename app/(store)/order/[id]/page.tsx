@@ -9,6 +9,11 @@ import { Order } from "@/models/Order";
 import { Img } from "@/components/ui/img";
 import { ButtonLink } from "@/components/ui/button";
 import { PayNowButton } from "@/components/account/pay-now-button";
+import { ReturnRequest } from "@/components/account/return-request";
+import { CancelOrder } from "@/components/account/cancel-order";
+import { PurchaseTracker } from "@/components/account/purchase-tracker";
+import { getSettings } from "@/lib/data";
+import { trackingUrl } from "@/lib/carriers";
 import { TIMELINE_STEPS, ORDER_STATUSES } from "@/lib/constants";
 import { formatDate, formatINR, serialize } from "@/lib/utils";
 
@@ -24,6 +29,10 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
   const doc = await Order.findOne({ _id: id, user: session.user.id }).lean<any>();
   if (!doc) notFound();
   const o = serialize(doc);
+  const settings = await getSettings();
+  const track = trackingUrl(o.carrier, o.trackingNumber);
+  const deliveredAt = [...o.timeline].reverse().find((t: any) => t.status === "Delivered")?.at || o.updatedAt;
+  const wa = settings.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I need help with order ${o.orderNumber}`)}` : null;
   const cancelled = o.status === "Cancelled" || o.status === "Returned";
   const stepIdx = Math.max(0, ORDER_STATUSES.indexOf(o.status));
   const reach = (s: string) => ORDER_STATUSES.indexOf(s as any);
@@ -33,13 +42,21 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
     <div className="container-wide max-w-5xl pb-10 pt-10 md:pt-16">
       {placed && !cancelled && (
         <div className="mb-10 flex items-start gap-4 border border-ink p-6">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-white"><Check className="h-4 w-4" /></span>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-paper"><Check className="h-4 w-4" /></span>
           <div><h2 className="font-display text-3xl">Thank you for your order</h2><p className="mt-1 text-sm text-muted">A confirmation has been recorded for order {o.orderNumber}. We'll update you as it ships.</p></div>
         </div>
       )}
       <p className="eyebrow mb-2">Order</p>
       <h1 className="display text-4xl md:text-6xl">{o.orderNumber}</h1>
       <p className="mt-2 text-sm text-muted">Placed on {formatDate(o.createdAt, true)} · {o.paymentMethod === "COD" ? "Cash on Delivery" : "Online payment"} · Payment {o.paymentStatus.toLowerCase()}</p>
+
+      {placed && !cancelled && <PurchaseTracker orderId={o._id} orderNumber={o.orderNumber} total={o.total} items={o.items.map((i: any) => ({ sku: i.sku, name: i.name, price: i.price, quantity: i.quantity }))} />}
+      <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-[11px] font-medium uppercase tracking-[0.2em]">
+        <Link href={`/order/${o._id}/invoice`} className="link-underline">View invoice</Link>
+        {["Pending", "Confirmed", "Processing"].includes(o.status) && <CancelOrder orderId={o._id} paid={o.paymentStatus === "PAID" && o.paymentMethod === "RAZORPAY"} />}
+        {track && <a href={track} target="_blank" rel="noopener noreferrer" className="link-underline">Track shipment ({o.carrier})</a>}
+        {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="link-underline">Chat on WhatsApp</a>}
+      </div>
 
       {needsPayment && <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border border-line bg-soft p-5"><p className="text-sm">Your payment is pending. Complete it to confirm this order.</p><PayNowButton orderId={o._id} name={o.shippingAddress?.fullName} email={o.shippingAddress?.email} phone={o.shippingAddress?.phone} /></div>}
 
@@ -60,7 +77,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           </ol>
         )}
         {o.status === "Out for Delivery" && <p className="mt-4 text-sm text-muted">Your order is out for delivery today.</p>}
-        {o.trackingNumber && <p className="mt-4 text-sm">Tracking number: <strong>{o.trackingNumber}</strong></p>}
+        {o.trackingNumber && <p className="mt-4 text-sm">{o.carrier ? `${o.carrier} · ` : ""}Tracking number: <strong>{o.trackingNumber}</strong></p>}
       </section>
 
       <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_340px]">
@@ -77,6 +94,9 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           <dl className="space-y-2">
             <div className="flex justify-between"><dt className="text-muted">Subtotal</dt><dd>{formatINR(o.subtotal)}</dd></div>
             {o.discount > 0 && <div className="flex justify-between"><dt className="text-muted">Discount {o.couponCode && `(${o.couponCode})`}</dt><dd>−{formatINR(o.discount)}</dd></div>}
+            {o.offerDiscount > 0 && <div className="flex justify-between"><dt className="text-muted">Offer {o.offerName && `(${o.offerName})`}</dt><dd>−{formatINR(o.offerDiscount)}</dd></div>}
+            {o.loyaltyDiscount > 0 && <div className="flex justify-between"><dt className="text-muted">Reward points</dt><dd>−{formatINR(o.loyaltyDiscount)}</dd></div>}
+            {o.giftCardAmount > 0 && <div className="flex justify-between"><dt className="text-muted">Gift card</dt><dd>−{formatINR(o.giftCardAmount)}</dd></div>}
             <div className="flex justify-between"><dt className="text-muted">Shipping</dt><dd>{o.shipping ? formatINR(o.shipping) : "Free"}</dd></div>
             <div className="flex justify-between"><dt className="text-muted">Tax (incl.)</dt><dd>{formatINR(o.tax)}</dd></div>
             <div className="flex justify-between border-t border-line pt-3 text-base font-medium"><dt>Total</dt><dd>{formatINR(o.total)}</dd></div>
@@ -85,6 +105,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           <div><p className="eyebrow mb-2">History</p><ul className="space-y-2">{[...o.timeline].reverse().map((t: any, k: number) => <li key={k}><span className="font-medium">{t.status}</span> <span className="text-muted">· {t.note} · {formatDate(t.at, true)}</span></li>)}</ul></div>
         </div>
       </div>
+      {o.status === "Delivered" && <ReturnRequest orderId={o._id} deliveredAt={deliveredAt} items={o.items.map((i: any) => ({ _id: i._id, name: i.name, quantity: i.quantity }))} />}
       <div className="mt-12 flex gap-3"><ButtonLink href="/account?tab=orders" variant="outline">All orders</ButtonLink><ButtonLink href="/shop">Continue shopping</ButtonLink></div>
     </div>
   );

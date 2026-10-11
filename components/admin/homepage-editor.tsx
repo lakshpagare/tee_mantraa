@@ -31,11 +31,11 @@ export function HomepageEditor() {
 
   return (
     <>
-      <PageHeader title="Homepage" description="Edit every section of the storefront homepage. Changes go live immediately — no code required." actions={<Link href="/" target="_blank" className="flex h-10 items-center border border-line bg-white px-4 text-sm hover:bg-neutral-50">Preview homepage ↗</Link>} />
+      <PageHeader title="Homepage" description="Edit every section of the storefront homepage. Changes go live immediately — no code required." actions={<Link href="/" target="_blank" className="flex h-10 items-center border border-line bg-paper px-4 text-sm hover:bg-neutral-50">Preview homepage ↗</Link>} />
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <nav aria-label="Homepage sections"><ul className="flex gap-1 overflow-x-auto lg:flex-col">
           {SECTION_KEYS.map((k) => (
-            <li key={k}><button onClick={() => setActive(k)} aria-current={active === k} className={cn("flex w-full items-center justify-between whitespace-nowrap px-3 py-2.5 text-left text-sm", active === k ? "bg-ink text-white" : "bg-white hover:bg-neutral-100")}>
+            <li key={k}><button onClick={() => setActive(k)} aria-current={active === k} className={cn("flex w-full items-center justify-between whitespace-nowrap px-3 py-2.5 text-left text-sm", active === k ? "bg-ink text-paper" : "bg-paper hover:bg-neutral-100")}>
               {SECTION_SCHEMA[k].label}{!sections[k].enabled && <span className="ml-2 text-[10px] uppercase opacity-70">Hidden</span>}
             </button></li>
           ))}
@@ -67,7 +67,7 @@ export function HomepageEditor() {
               );
             })}
           </div>
-          <div className="mt-8 flex justify-end"><button onClick={save} disabled={busy} className="h-10 bg-ink px-6 text-white disabled:opacity-50">{busy ? "Saving…" : "Save section"}</button></div>
+          <div className="mt-8 flex justify-end"><button onClick={save} disabled={busy} className="h-10 bg-ink px-6 text-paper disabled:opacity-50">{busy ? "Saving…" : "Save section"}</button></div>
         </Card>
       </div>
     </>

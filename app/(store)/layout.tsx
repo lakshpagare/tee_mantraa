@@ -5,13 +5,18 @@ import { SearchOverlay } from "@/components/layout/search-overlay";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { QuickView } from "@/components/product/quick-view";
 import { ScrollUI } from "@/components/scroll-ui";
-import { getHomepage, getSettings } from "@/lib/data";
+import { CompareBar } from "@/components/product/compare";
+import { WhatsAppButton } from "@/components/layout/whatsapp-button";
+import { CustomCursor } from "@/components/layout/custom-cursor";
+import { getFlashSales, getHomepage, getSettings } from "@/lib/data";
+import { FlashProvider, FlashStrip } from "@/components/flash-sale";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const [settings, home] = await Promise.all([getSettings(), getHomepage()]);
+  const [settings, home, flash] = await Promise.all([getSettings(), getHomepage(), getFlashSales()]);
   return (
-    <>
+    <FlashProvider value={flash}>
       <Navbar />
+      <FlashStrip />
       <main id="main" className="min-h-[60vh] pb-16 lg:pb-0">{children}</main>
       <Footer settings={settings} content={home.footer.data as { about: string; copyright: string }} />
       <BottomNav />
@@ -19,6 +24,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <CartDrawer />
       <QuickView />
       <ScrollUI />
-    </>
+      <CompareBar />
+      <WhatsAppButton />
+      <CustomCursor />
+    </FlashProvider>
   );
 }

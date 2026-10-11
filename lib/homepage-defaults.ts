@@ -62,7 +62,7 @@ export const HOMEPAGE_DEFAULTS: Record<SectionKey, { enabled: boolean; data: Rec
   social: {
     enabled: true,
     data: {
-      heading: "@verano.wear",
+      heading: "@tee.mantraa",
       ctaText: "FOLLOW OUR JOURNEY",
       ctaHref: "https://instagram.com",
       images: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/images/social/s${n}.svg`),

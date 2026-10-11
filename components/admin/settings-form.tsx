@@ -17,11 +17,21 @@ const FIELDS: { name: string; label: string; type?: string; hint?: string }[] = 
   { name: "instagram", label: "Instagram URL" },
   { name: "facebook", label: "Facebook URL" },
   { name: "youtube", label: "YouTube URL" },
+  { name: "whatsapp", label: "WhatsApp number (with country code)", hint: "e.g. 919876543210 — shows a chat button on the store" },
+  { name: "alertEmail", label: "Admin alert email", hint: "Receives low-stock alerts" },
+  { name: "gatewayFeePct", label: "Payment gateway fee (%)", type: "number", hint: "Used by the Profit report to estimate Razorpay fees" },
+  { name: "businessName", label: "Legal business name (invoices)" },
+  { name: "gstin", label: "GSTIN (invoices)" },
+  { name: "businessAddress", label: "Business address (invoices)" },
+  { name: "businessState", label: "Business state (CGST/SGST vs IGST)" },
+  { name: "unserviceablePincodes", label: "Unserviceable PIN codes", hint: "Comma-separated 6-digit codes you cannot deliver to" },
 ];
 
 export function SettingsForm() {
   const [v, setV] = useState<Record<string, any> | null>(null);
   const [busy, setBusy] = useState(false);
+  const [testTo, setTestTo] = useState("");
+  const [testing, setTesting] = useState(false);
   useEffect(() => { adminFetch("/api/admin/settings").then((d) => setV(d.settings)).catch((e) => toast.error(e.message)); }, []);
   if (!v) return <p className="text-muted">Loading settings…</p>;
   const save = async (e: React.FormEvent) => {
@@ -39,16 +49,26 @@ export function SettingsForm() {
         <Card className="max-w-3xl p-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {FIELDS.map((f) => (
-              <label key={f.name} className={f.name === "announcement" || f.name === "tagline" ? "sm:col-span-2" : ""}>
+              <label key={f.name} className={["announcement", "tagline", "businessAddress", "unserviceablePincodes"].includes(f.name) ? "sm:col-span-2" : ""}>
                 <span className="mb-1.5 block text-xs font-medium text-neutral-600">{f.label}</span>
                 <input type={f.type || "text"} min={0} step="any" value={v[f.name] ?? ""} onChange={(e) => setV({ ...v, [f.name]: e.target.value })} className="h-10 w-full border border-line px-3 text-sm focus:border-ink focus:outline-none" />
                 {f.hint && <span className="mt-1 block text-xs text-muted">{f.hint}</span>}
               </label>
             ))}
           </div>
-          <div className="mt-6 flex justify-end"><button type="submit" disabled={busy} className="h-10 bg-ink px-6 text-white disabled:opacity-50">{busy ? "Saving…" : "Save settings"}</button></div>
+          <div className="mt-6 flex justify-end"><button type="submit" disabled={busy} className="h-10 bg-ink px-6 text-paper disabled:opacity-50">{busy ? "Saving…" : "Save settings"}</button></div>
         </Card>
       </form>
+      <Card className="mt-6 max-w-3xl p-6" title="WhatsApp Business API">
+        <p className="mb-4 text-sm text-muted">Automatic order messages use the WhatsApp Cloud API (set <code>WHATSAPP_TOKEN</code> and <code>WHATSAPP_PHONE_NUMBER_ID</code> in your environment). Customers must opt in at checkout. You can always message customers manually from the order screen using your own WhatsApp.</p>
+        <div className="flex max-w-md gap-2">
+          <input value={testTo} onChange={(e) => setTestTo(e.target.value)} placeholder="Your number, e.g. 9876543210" aria-label="Test phone number" className="h-10 flex-1 border border-line px-3 text-sm" />
+          <button type="button" disabled={testing || testTo.length < 8} className="h-10 border border-ink px-4 text-sm hover:bg-ink hover:text-paper disabled:opacity-40" onClick={async () => {
+            setTesting(true);
+            try { await adminFetch("/api/admin/whatsapp/test", "POST", { to: testTo }); toast.success("Test message sent"); } catch (e: any) { toast.error(e.message); } finally { setTesting(false); }
+          }}>{testing ? "Sending…" : "Send test"}</button>
+        </div>
+      </Card>
     </>
   );
 }

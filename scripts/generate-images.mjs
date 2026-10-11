@@ -29,7 +29,7 @@ function svg(w, h, { tones, garment = "#2b2b2b", type, variant = 0, label = "", 
   const tx = cx - 200 * s + (variant ? w * 0.04 : 0), ty = cy - 250 * s + h * 0.02;
   const arch = variant ? `<circle cx="${w * 0.72}" cy="${h * 0.3}" r="${Math.min(w, h) * 0.22}" fill="${shade(a, -14)}" opacity=".55"/>` : `<path d="M${w * 0.18} ${h * 0.92} V${h * 0.42} A${w * 0.32} ${w * 0.32} 0 0 1 ${w * 0.82} ${h * 0.42} V${h * 0.92}Z" fill="${shade(a, -12)}" opacity=".5"/>`;
   const art = type && SHAPES[type] ? `<g transform="translate(${tx} ${ty}) scale(${s}) ${variant ? `rotate(-4 200 250)` : ""}" fill="${garment}" color="${garment}" filter="url(#sh)">${SHAPES[type]}</g>` : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label || "VÉRANO"}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label || "tee-mantraa"}">
 <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="${12 * s}" stdDeviation="${14 * s}" flood-color="#000" flood-opacity=".22"/></filter></defs>
 <rect width="${w}" height="${h}" fill="url(#g)"/>${arch}${art}
 ${label ? `<text x="${w * 0.07}" y="${h * 0.93}" font-family="Georgia, 'Times New Roman', serif" font-size="${Math.max(18, w * 0.034)}" fill="#111" opacity=".8" letter-spacing="3">${label.toUpperCase()}</text>` : ""}
@@ -45,10 +45,10 @@ PRODUCTS.forEach((p, i) => {
   [0, 1].forEach((v) => {
     const hex = COLOR_HEX[p.colors[v % p.colors.length]];
     const pool = lum(hex) > 0.55 ? DARK : LIGHT;
-    write(`products/${p.slug}-${v + 1}.svg`, svg(800, 1000, { tones: pool[(i + v) % pool.length], garment: hex, type: p.type, variant: v, label: "VÉRANO", sub: p.name, scale: v ? 0.7 : 0.62 }));
+    write(`products/${p.slug}-${v + 1}.svg`, svg(800, 1000, { tones: pool[(i + v) % pool.length], garment: hex, type: p.type, variant: v, label: "tee-mantraa", sub: p.name, scale: v ? 0.7 : 0.62 }));
   });
 });
-write("products/placeholder.svg", svg(800, 1000, { tones: LIGHT[0], label: "VÉRANO" }));
+write("products/placeholder.svg", svg(800, 1000, { tones: LIGHT[0], label: "tee-mantraa" }));
 
 // Categories (4:5)
 CATEGORIES.forEach((c, i) => write(`categories/${c.slug}.svg`, svg(800, 1000, { tones: c.tone, garment: ["#2B2B2B", "#6B705C", "#3A4A6B", "#7A5C3E"][i % 4], type: c.type, variant: i % 2, label: c.name, scale: 0.7 })));

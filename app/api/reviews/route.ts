@@ -10,7 +10,7 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export const POST = handler(async (req: Request) => {
   const user = await requireUser();
-  if (!rateLimit(`review:${user.id}`, 10, 60 * 60_000).ok) throw new ApiError(429, "Too many reviews. Try again later.");
+  if (!(await rateLimit(`review:${user.id}`, 10, 60 * 60_000)).ok) throw new ApiError(429, "Too many reviews. Try again later.");
   const b = await parseBody(req, reviewSchema);
   await connectDB();
   if (!(await Product.exists({ _id: b.productId }))) throw new ApiError(404, "Product not found");

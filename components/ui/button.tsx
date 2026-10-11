@@ -10,12 +10,12 @@ type Size = "sm" | "md" | "lg";
 const base =
   "group relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:pointer-events-none disabled:opacity-50";
 const variants: Record<Variant, string> = {
-  primary: "bg-ink text-white border border-ink hover:bg-white hover:text-ink",
-  outline: "border border-ink text-ink hover:bg-ink hover:text-white",
+  primary: "bg-ink text-paper border border-ink hover:bg-paper hover:text-ink",
+  outline: "border border-ink text-ink hover:bg-ink hover:text-paper",
   ghost: "text-ink hover:bg-soft",
   light: "bg-white text-ink border border-white hover:bg-transparent hover:text-white",
   "outline-light": "border border-white text-white hover:bg-white hover:text-ink",
-  danger: "bg-red-700 text-white border border-red-700 hover:bg-white hover:text-red-700",
+  danger: "bg-red-700 text-white border border-red-700 hover:bg-paper hover:text-red-700",
 };
 const sizes: Record<Size, string> = { sm: "h-9 px-4", md: "h-12 px-7", lg: "h-14 px-10" };
 

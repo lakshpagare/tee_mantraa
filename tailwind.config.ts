@@ -5,10 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#111111",
-        soft: "#F7F7F5",
-        muted: "#6B6B6B",
-        line: "#E8E8E8",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        soft: "rgb(var(--soft) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        paper: "rgb(var(--paper) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],

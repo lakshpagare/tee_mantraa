@@ -10,7 +10,7 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 export const cloudinaryConfigured = () =>
   !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 
-export async function handleUpload(file: File, folder = "verano"): Promise<string> {
+export async function handleUpload(file: File, folder = "tee-mantraa"): Promise<string> {
   if (!ALLOWED.includes(file.type)) throw new ApiError(415, "Only JPG, PNG, WebP or AVIF images are allowed");
   if (file.size > MAX_BYTES) throw new ApiError(413, "Image must be under 5MB");
   const buffer = Buffer.from(await file.arrayBuffer());

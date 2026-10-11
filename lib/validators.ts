@@ -18,6 +18,7 @@ export const registerSchema = z.object({
   name: str(80).min(2, "Enter your full name"),
   email: emailField,
   password: passwordField,
+  ref: z.preprocess(emptyToUndef, z.string().trim().toUpperCase().max(12).optional()),
 });
 export const forgotSchema = z.object({ email: emailField });
 export const resetSchema = z.object({ token: z.string().min(10), email: emailField, password: passwordField });
@@ -56,6 +57,9 @@ export const checkoutSchema = z.object({
   deliveryMethod: z.enum(["standard", "express"]),
   paymentMethod: z.enum(["RAZORPAY", "COD"]),
   couponCode: z.preprocess(emptyToUndef, str(30).optional()),
+  usePoints: z.boolean().optional().default(false),
+  whatsappOptIn: z.boolean().optional().default(false),
+  giftCardCode: z.preprocess(emptyToUndef, str(30).optional()),
 });
 
 export const reviewSchema = z.object({
@@ -80,8 +84,9 @@ export const productSchema = z.object({
   sku: str(40).min(2),
   category: z.preprocess(emptyToUndef, z.string().length(24).optional()),
   subcategory: z.preprocess(emptyToUndef, str(60).optional()),
-  brand: str(60).optional().default("VÉRANO"),
+  brand: str(60).optional().default("tee-mantraa"),
   images: z.array(z.string().min(1)).max(12).default([]),
+  video: z.preprocess(emptyToUndef, z.string().max(500).optional()),
   colors: z.array(z.object({ name: str(40).min(1), hex: z.string().regex(/^#[0-9a-fA-F]{6}$/) })).default([]),
   sizes: z.array(str(20).min(1)).default([]),
   stock: z.coerce.number().int().min(0).default(0),
@@ -173,6 +178,14 @@ export const settingsSchema = z.object({
   instagram: str(200),
   facebook: str(200),
   youtube: str(200),
+  gatewayFeePct: z.coerce.number().min(0).max(10).default(2),
+  whatsapp: z.string().trim().regex(/^[0-9+\s-]{0,16}$/, "Use digits with country code, e.g. 919876543210").optional().default(""),
+  alertEmail: z.preprocess(emptyToUndef, emailField.optional()),
+  businessName: str(120).optional().default(""),
+  gstin: str(20).optional().default(""),
+  businessAddress: str(300).optional().default(""),
+  businessState: str(60).optional().default(""),
+  unserviceablePincodes: str(2000).optional().default(""),
 });
 
 /** Client-side form schema (no preprocessors, so it infers cleanly for react-hook-form). */
@@ -200,6 +213,62 @@ export const registerFormSchema = z
     email: z.string().trim().toLowerCase().email("Enter a valid email address"),
     password: z.string().min(8, "At least 8 characters").max(72).regex(/[A-Za-z]/, "Include a letter").regex(/[0-9]/, "Include a number"),
     confirm: z.string(),
+    ref: z.string().trim().max(12).optional(),
   })
   .refine((v) => v.password === v.confirm, { message: "Passwords do not match", path: ["confirm"] });
 export type RegisterForm = z.infer<typeof registerFormSchema>;
+
+export const giftCardSchema = z.object({
+  code: z.string().trim().toUpperCase().regex(/^[A-Z0-9_-]{4,24}$/, "Use 4-24 letters, numbers, - or _"),
+  initialAmount: z.coerce.number().min(1),
+  balance: optNum,
+  recipientEmail: z.preprocess(emptyToUndef, emailField.optional()),
+  note: z.preprocess(emptyToUndef, str(200).optional()),
+  expiryDate: optDate,
+  active: z.boolean().default(true),
+});
+
+export const blogSchema = z.object({
+  title: str(160).min(2),
+  slug: slugField,
+  excerpt: str(300).optional().default(""),
+  content: str(40000).optional().default(""),
+  coverImage: z.string().optional().default(""),
+  author: str(80).optional().default("The Studio"),
+  tags: z.array(str(30)).default([]),
+  published: z.boolean().default(false),
+});
+
+export const returnRequestSchema = z.object({
+  orderId: z.string().length(24),
+  itemIds: z.array(z.string().length(24)).min(1, "Select at least one item"),
+  type: z.enum(["RETURN", "EXCHANGE"]),
+  reason: str(80).min(2),
+  note: z.preprocess(emptyToUndef, str(500).optional()),
+});
+
+export const returnUpdateSchema = z.object({
+  status: z.enum(["REQUESTED", "APPROVED", "REJECTED", "RECEIVED", "REFUNDED"]),
+  adminNote: z.preprocess(emptyToUndef, str(300).optional()),
+  refundAmount: optNum,
+});
+
+export const offerSchema = z
+  .object({
+    name: str(80).min(2),
+    label: str(120).optional().default(""),
+    type: z.enum(["PERCENT_OFF", "BUY_X_GET_Y", "BUNDLE_PRICE"]),
+    scope: z.enum(["all", "category", "collection", "products"]).default("all"),
+    refs: z.array(z.string().length(24)).default([]),
+    minQty: z.coerce.number().int().min(1).max(20).default(1),
+    value: z.coerce.number().min(0),
+    flash: z.boolean().default(false),
+    startDate: optDate,
+    endDate: optDate,
+    active: z.boolean().default(true),
+  })
+  .refine((o) => o.type !== "PERCENT_OFF" || (o.value > 0 && o.value <= 90), { message: "Percentage must be between 1 and 90", path: ["value"] })
+  .refine((o) => o.type !== "BUY_X_GET_Y" || (o.value >= 1 && o.value <= 5), { message: "Free items must be between 1 and 5", path: ["value"] })
+  .refine((o) => !o.flash || (o.type === "PERCENT_OFF" && !!o.endDate), { message: "Flash sales must be a percentage offer with an end date", path: ["endDate"] })
+  .refine((o) => !o.flash || o.scope !== "collection", { message: "Flash sales can target all products, categories or specific products", path: ["scope"] })
+  .refine((o) => o.scope === "all" || o.refs.length > 0, { message: "Select at least one category / collection / product", path: ["refs"] });

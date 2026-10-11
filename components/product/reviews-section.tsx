@@ -107,6 +107,12 @@ export function ReviewsSection({ productId, rating, count, reviews, breakdown }:
         </div>
 
         <div>
+          {reviews.some((r) => r.image) && (
+            <div className="mb-8">
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.2em]">Customer photos</p>
+              <ul className="flex gap-2 overflow-x-auto no-scrollbar">{reviews.filter((r) => r.image).map((r) => <li key={r._id} className="w-24 shrink-0"><Img src={r.image!} alt={`Photo from ${r.name}`} ratio="1/1" sizes="96px" /></li>)}</ul>
+            </div>
+          )}
           {reviews.length === 0 ? (
             <EmptyState icon={MessageSquareText} title="No reviews yet" text="Be the first to share what you think of this piece." />
           ) : (

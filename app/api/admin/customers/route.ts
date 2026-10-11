@@ -1,11 +1,11 @@
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Order } from "@/models/Order";
-import { handler, ok, requireAdmin } from "@/lib/api";
+import { handler, ok, requireAccess } from "@/lib/api";
 import { escapeRegex, serialize } from "@/lib/utils";
 
 export const GET = handler(async (req: Request) => {
-  await requireAdmin();
+  await requireAccess("customers");
   const sp = new URL(req.url).searchParams;
   const page = Math.max(1, parseInt(sp.get("page") || "1", 10) || 1);
   const limit = 20;

@@ -24,7 +24,7 @@ export function CollectionBanner({ data }: { data: Record<string, string> }) {
   }, []);
 
   return (
-    <section ref={wrap} className="relative h-[85svh] min-h-[520px] w-full overflow-hidden bg-ink text-white">
+    <section ref={wrap} className="relative h-[85svh] min-h-[520px] w-full overflow-hidden bg-[#111] text-white">
       <div ref={img} className="absolute inset-0"><Img src={data.image} alt={data.heading} sizes="100vw" className="h-full w-full" /></div>
       <div className="absolute inset-0 bg-black/30" />
       <div className="container-wide relative z-10 flex h-full flex-col items-center justify-center text-center">

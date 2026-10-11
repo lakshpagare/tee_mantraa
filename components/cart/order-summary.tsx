@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { formatINR } from "@/lib/utils";
 
-interface Totals { subtotal: number; discount: number; shipping: number; tax: number; total: number }
+interface Totals { subtotal: number; discount: number; offerDiscount?: number; offerName?: string | null; loyaltyDiscount?: number; giftCardAmount?: number; shipping: number; tax: number; total: number }
 
 export function CouponBox({ code, error, applying, onApply, onRemove }: { code: string; error: string; applying: boolean; onApply: (c: string) => void; onRemove: () => void }) {
   const [value, setValue] = useState("");
@@ -33,7 +33,10 @@ export function TotalsTable({ t }: { t: Totals }) {
   return (
     <dl className="space-y-3">
       <div className={row}><dt className="text-muted">Subtotal</dt><dd>{formatINR(t.subtotal)}</dd></div>
-      {t.discount > 0 && <div className={row}><dt className="text-muted">Discount</dt><dd className="text-green-700">−{formatINR(t.discount)}</dd></div>}
+      {!!t.offerDiscount && <div className={row}><dt className="text-muted">Offer{t.offerName ? `: ${t.offerName}` : ""}</dt><dd className="text-green-700">−{formatINR(t.offerDiscount)}</dd></div>}
+      {t.discount - (t.offerDiscount || 0) > 0 && <div className={row}><dt className="text-muted">Coupon</dt><dd className="text-green-700">−{formatINR(t.discount - (t.offerDiscount || 0))}</dd></div>}
+      {!!t.loyaltyDiscount && <div className={row}><dt className="text-muted">Reward points</dt><dd className="text-green-700">−{formatINR(t.loyaltyDiscount)}</dd></div>}
+      {!!t.giftCardAmount && <div className={row}><dt className="text-muted">Gift card</dt><dd className="text-green-700">−{formatINR(t.giftCardAmount)}</dd></div>}
       <div className={row}><dt className="text-muted">Shipping</dt><dd>{t.shipping === 0 ? "Free" : formatINR(t.shipping)}</dd></div>
       <div className={row}><dt className="text-muted">Tax (GST, included)</dt><dd>{formatINR(t.tax)}</dd></div>
       <div className="flex justify-between border-t border-line pt-4 text-base font-medium"><dt>Total</dt><dd>{formatINR(t.total)}</dd></div>

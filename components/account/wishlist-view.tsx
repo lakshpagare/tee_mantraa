@@ -1,6 +1,6 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -30,6 +30,20 @@ export function WishlistView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  const [sharing, setSharing] = useState(false);
+  const share = async () => {
+    setSharing(true);
+    try {
+      const r = await fetch("/api/wishlist/share", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      const text = "Take a look at my wishlist";
+      if (navigator.share) { try { await navigator.share({ title: "My wishlist", text, url: d.url }); return; } catch { /* user dismissed: fall through to copy */ } }
+      await navigator.clipboard?.writeText(d.url);
+      toast.success(`Link copied: ${d.url.replace(/^https?:\/\//, "")}`);
+    } catch (e: any) { toast.error(e.message || "Could not create a link"); } finally { setSharing(false); }
+  };
+
   const moveToCart = (p: ProductDTO) => {
     const avail = Math.max(0, p.stock - p.reserved);
     const simple = p.sizes.length <= 1 && p.colors.length <= 1;
@@ -47,6 +61,14 @@ export function WishlistView() {
   if (!visible.length) return <EmptyState icon={Heart} title="Your wishlist is empty" text="Tap the heart on anything you love and it will wait for you here." ctaText="Discover new arrivals" ctaHref="/shop?new=1" />;
 
   return (
+    <>
+    <div className="mb-8 flex flex-wrap items-center gap-3">
+      <Button variant="outline" size="sm" onClick={share} loading={sharing}><Share2 className="h-4 w-4" />Share wishlist</Button>
+      <a className="inline-flex h-9 items-center border border-line px-4 text-[11px] uppercase tracking-[0.2em] hover:border-ink" target="_blank" rel="noopener noreferrer" onClick={async (e) => {
+        e.preventDefault();
+        try { const r = await fetch("/api/wishlist/share", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error); window.open(`https://wa.me/?text=${encodeURIComponent(`Take a look at my wishlist: ${d.url}`)}`, "_blank", "noopener"); } catch (err: any) { toast.error(err.message || "Could not create a link"); }
+      }} href="#">Send on WhatsApp</a>
+    </div>
     <ul className="grid grid-cols-2 gap-x-3 gap-y-12 md:grid-cols-3 md:gap-x-5 lg:grid-cols-4">
       <AnimatePresence>
         {visible.map((p) => (
@@ -62,5 +84,6 @@ export function WishlistView() {
         ))}
       </AnimatePresence>
     </ul>
+    </>
   );
 }

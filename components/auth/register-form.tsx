@@ -1,27 +1,28 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
-import { GoogleButton } from "@/components/auth/login-form";
+import { GoogleButton, googleEnabled } from "@/components/auth/login-form";
 import { registerFormSchema, type RegisterForm } from "@/lib/validators";
 
 export function RegisterFormView() {
   const router = useRouter();
+  const sp = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
   const [devUrl, setDevUrl] = useState("");
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterForm>({ resolver: zodResolver(registerFormSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterForm>({ resolver: zodResolver(registerFormSchema), defaultValues: { ref: sp.get("ref") || "" } });
 
   const onSubmit = handleSubmit(async (v) => {
     setBusy(true);
     setFormError("");
     try {
-      const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: v.name, email: v.email, password: v.password }) });
+      const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: v.name, email: v.email, password: v.password, ref: v.ref || undefined }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
       if (d.devVerifyUrl) setDevUrl(d.devVerifyUrl);
@@ -44,12 +45,13 @@ export function RegisterFormView() {
   return (
     <div className="space-y-6">
       <GoogleButton callbackUrl="/account" />
-      <p className="text-center text-[11px] uppercase tracking-[0.2em] text-muted">or</p>
+      {googleEnabled && <p className="text-center text-[11px] uppercase tracking-[0.2em] text-muted">or</p>}
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         <Field label="Full name" error={errors.name?.message}><Input autoComplete="name" aria-invalid={!!errors.name} {...register("name")} /></Field>
         <Field label="Email" error={errors.email?.message}><Input type="email" autoComplete="email" aria-invalid={!!errors.email} {...register("email")} /></Field>
         <Field label="Password" error={errors.password?.message} hint="At least 8 characters with a letter and a number"><Input type="password" autoComplete="new-password" aria-invalid={!!errors.password} {...register("password")} /></Field>
         <Field label="Confirm password" error={errors.confirm?.message}><Input type="password" autoComplete="new-password" aria-invalid={!!errors.confirm} {...register("confirm")} /></Field>
+        <Field label="Referral code (optional)" hint="You both earn reward points"><Input autoCapitalize="characters" {...register("ref")} /></Field>
         {formError && <p role="alert" className="text-sm text-red-600">{formError}</p>}
         {devUrl && <p className="break-all text-xs text-muted">Dev only — verification link: <a className="underline" href={devUrl}>{devUrl}</a></p>}
         <Button type="submit" size="lg" className="w-full" loading={busy}>Create account</Button>

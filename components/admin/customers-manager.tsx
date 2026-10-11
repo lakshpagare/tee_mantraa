@@ -44,7 +44,7 @@ export function CustomersManager() {
   useEffect(() => { const t = setTimeout(() => load(1), 300); return () => clearTimeout(t); }, [load]);
   return (
     <>
-      <PageHeader title="Customers" description={`${meta.total} customers`} />
+      <PageHeader title="Customers" description={`${meta.total} customers`} actions={<button type="button" onClick={() => window.location.assign("/api/admin/customers/export")} className="flex h-10 items-center border border-line bg-paper px-4 text-sm hover:bg-neutral-50">Export CSV</button>} />
       <Card>
         <div className="border-b border-line p-4"><div className="relative max-w-md"><Search className="absolute left-3 top-3 h-4 w-4 text-muted" /><input className="h-10 w-full border border-line pl-9 pr-3 text-sm" placeholder="Search name, email, phone…" aria-label="Search customers" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
         {loading ? <TableSkeleton cols={7} /> : error ? <div className="p-10 text-center text-red-600">{error}</div> : items.length === 0 ? <div className="p-12 text-center text-muted">No customers found.</div> : (

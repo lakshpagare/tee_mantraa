@@ -17,7 +17,7 @@ export function Hero({ data }: { data: Record<string, string> }) {
   const fade = (delay: number) => ({ initial: reduce ? false : { opacity: 0, y: 40 }, animate: { opacity: 1, y: 0 }, transition: { duration: 1, delay, ease: EASE } });
 
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-ink text-white">
+    <section ref={ref} className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-[#111] text-white">
       <motion.div
         className="absolute inset-0"
         style={reduce ? undefined : { y }}

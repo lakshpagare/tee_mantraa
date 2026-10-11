@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { Img } from "@/components/ui/img";
 import { Modal } from "@/components/ui/modal";
-import { Price } from "@/components/ui/price";
 import { Stars } from "@/components/ui/stars";
 import { VariantPicker } from "@/components/product/variant-picker";
 import { useUI } from "@/store/ui";
+import { FlashPrice } from "@/components/flash-sale";
 
 export function QuickView() {
   const product = useUI((s) => s.quickView);
@@ -21,7 +21,7 @@ export function QuickView() {
             {product.reviewCount > 0 && (
               <div className="mt-2 flex items-center gap-2"><Stars value={product.rating} /><span className="text-xs text-muted">{product.rating.toFixed(1)} ({product.reviewCount})</span></div>
             )}
-            <Price price={product.price} compareAt={product.compareAtPrice} showBadge className="mt-3 text-lg" />
+            <FlashPrice product={product} className="mt-3 text-lg" />
             {product.shortDescription && <p className="mt-4 text-sm text-muted">{product.shortDescription}</p>}
             <div className="mt-6"><VariantPicker product={product} compact onAdded={() => { onAdded?.(); close(); }} /></div>
             <Link href={`/product/${product.slug}`} onClick={close} className="link-underline mt-6 self-start text-[11px] uppercase tracking-[0.2em]">View full product</Link>

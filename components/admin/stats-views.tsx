@@ -75,7 +75,7 @@ export function AnalyticsView() {
   return (
     <>
       <PageHeader title="Analytics" description="Sales, products and customers over time." actions={
-        <div className="flex border border-line bg-white" role="group" aria-label="Date range">{RANGES.map(([v, l]) => <button key={v} onClick={() => setRange(v)} aria-pressed={range === v} className={`px-3.5 py-2 text-sm ${range === v ? "bg-ink text-white" : "hover:bg-neutral-50"}`}>{l}</button>)}</div>
+        <div className="flex border border-line bg-paper" role="group" aria-label="Date range">{RANGES.map(([v, l]) => <button key={v} onClick={() => setRange(v)} aria-pressed={range === v} className={`px-3.5 py-2 text-sm ${range === v ? "bg-ink text-paper" : "hover:bg-neutral-50"}`}>{l}</button>)}</div>
       } />
       {error ? <p className="text-red-600">{error}</p> : !d ? <div className="grid gap-4 sm:grid-cols-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}</div> : (
         <>

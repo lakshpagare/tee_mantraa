@@ -16,7 +16,9 @@ export type FieldDef = {
   label: string;
   type: "text" | "textarea" | "number" | "switch" | "select" | "date" | "images" | "image" | "tags" | "colors" | "refselect" | "multiref";
   options?: { value: string; label: string }[];
-  refResource?: string;
+  refResource?: string | ((values: Record<string, any>) => string);
+  /** Field names reset to [] when this field changes (e.g. clearing picked items when the scope changes). */
+  resets?: string[];
   hint?: string;
   full?: boolean;
   required?: boolean;
@@ -38,7 +40,7 @@ interface Props {
   toolbarExtra?: ReactNode | ((items: any[]) => ReactNode);
 }
 
-const inputCls = "h-10 w-full border border-line bg-white px-3 text-sm focus:border-ink focus:outline-none";
+const inputCls = "h-10 w-full border border-line bg-paper px-3 text-sm focus:border-ink focus:outline-none";
 const toDateInput = (v: any) => (v ? new Date(v).toISOString().slice(0, 10) : "");
 
 function ColorsEditor({ value, onChange }: { value: { name: string; hex: string }[]; onChange: (v: { name: string; hex: string }[]) => void }) {
@@ -123,7 +125,7 @@ export function ResourceManager({ resource, title, singular, description, column
       const payload: Record<string, any> = {};
       for (const f of fields) {
         let v = values[f.name];
-        if (f.type === "number") v = v === "" || v === undefined ? undefined : Number(v);
+        if (f.type === "number") v = v === "" || v === undefined || v === null ? null : Number(v);
         payload[f.name] = v;
       }
       if (values._id) await adminFetch(`/api/admin/${resource}/${values._id}`, "PUT", payload);
@@ -148,7 +150,7 @@ export function ResourceManager({ resource, title, singular, description, column
     <>
       <PageHeader title={title} description={description ?? `${meta.total} total`} actions={<>
         {typeof toolbarExtra === "function" ? toolbarExtra(items) : toolbarExtra}
-        {canCreate && <button onClick={() => openForm()} className="flex h-10 items-center gap-2 bg-ink px-4 text-sm text-white hover:bg-neutral-800"><Plus className="h-4 w-4" />New {singular.toLowerCase()}</button>}
+        {canCreate && <button onClick={() => openForm()} className="flex h-10 items-center gap-2 bg-ink px-4 text-sm text-paper hover:bg-neutral-800"><Plus className="h-4 w-4" />New {singular.toLowerCase()}</button>}
       </>} />
       <Card>
         <div className="flex flex-wrap gap-3 border-b border-line p-4">
@@ -201,15 +203,15 @@ export function ResourceManager({ resource, title, singular, description, column
                       {f.type === "number" && <input type="number" step="any" min={0} className={inputCls} value={v ?? ""} onChange={(e) => set(f.name, e.target.value)} required={f.required} />}
                       {f.type === "date" && <input type="date" className={inputCls} value={v ?? ""} onChange={(e) => set(f.name, e.target.value)} />}
                       {f.type === "textarea" && <textarea rows={4} className="w-full border border-line p-3 text-sm focus:border-ink focus:outline-none" value={v ?? ""} onChange={(e) => set(f.name, e.target.value)} />}
-                      {f.type === "select" && <select className={inputCls} value={v ?? ""} onChange={(e) => set(f.name, e.target.value)}>{f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>}
-                      {f.type === "refselect" && <RefSelect resource={f.refResource!} value={v || ""} onChange={(x) => set(f.name, x)} />}
+                      {f.type === "select" && <select className={inputCls} value={v ?? ""} onChange={(e) => { set(f.name, e.target.value); f.resets?.forEach((n) => set(n, [])); }}>{f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>}
+                      {f.type === "refselect" && <RefSelect resource={f.refResource as string} value={v || ""} onChange={(x) => set(f.name, x)} />}
                     </label>
                   )}
                   {f.type === "images" && <div>{label(f)}<ImageUploader value={v || []} onChange={(x) => set(f.name, x)} max={12} /></div>}
                   {f.type === "image" && <div>{label(f)}<ImageUploader single value={v ? [v] : []} onChange={(x) => set(f.name, x[0] || "")} /></div>}
                   {f.type === "tags" && <div>{label(f)}<TagsEditor value={v || []} onChange={(x) => set(f.name, x)} /></div>}
                   {f.type === "colors" && <div>{label(f)}<ColorsEditor value={v || []} onChange={(x) => set(f.name, x)} /></div>}
-                  {f.type === "multiref" && <div>{label(f)}<RefMulti resource={f.refResource!} value={v || []} onChange={(x) => set(f.name, x)} /></div>}
+                  {f.type === "multiref" && (() => { const rr = typeof f.refResource === "function" ? f.refResource(values) : (f.refResource as string); return <div>{label(f)}<RefMulti key={rr} resource={rr} value={v || []} onChange={(x) => set(f.name, x)} /></div>; })()}
                   {f.hint && <p className="mt-1 text-xs text-muted">{f.hint}</p>}
                 </div>
               );
@@ -217,7 +219,7 @@ export function ResourceManager({ resource, title, singular, description, column
           </div>
           <div className="flex justify-end gap-3 border-t border-line p-4">
             <button type="button" onClick={() => setEditing(null)} className="h-10 border border-line px-5 hover:bg-neutral-50">Cancel</button>
-            <button type="submit" disabled={saving} className="h-10 bg-ink px-6 text-white hover:bg-neutral-800 disabled:opacity-50">{saving ? "Saving…" : "Save"}</button>
+            <button type="submit" disabled={saving} className="h-10 bg-ink px-6 text-paper hover:bg-neutral-800 disabled:opacity-50">{saving ? "Saving…" : "Save"}</button>
           </div>
         </form>
       </Modal>

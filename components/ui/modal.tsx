@@ -53,7 +53,7 @@ export function Modal({ open, onClose, title, children, className, side }: Props
             animate={side ? { x: 0 } : { opacity: 1, y: 0, scale: 1 }}
             exit={side ? { x: "100%" } : { opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className={cn("relative z-10 max-h-full overflow-y-auto bg-white shadow-2xl outline-none", side ? "h-full w-full max-w-xl" : "w-full max-w-3xl", className)}
+            className={cn("relative z-10 max-h-full overflow-y-auto bg-paper shadow-2xl outline-none", side ? "h-full w-full max-w-xl" : "w-full max-w-3xl", className)}
           >
             <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 z-10 rounded-full p-2 hover:bg-soft">
               <X className="h-5 w-5" />

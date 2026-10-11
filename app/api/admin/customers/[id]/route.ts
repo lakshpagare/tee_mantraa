@@ -4,13 +4,14 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Order } from "@/models/Order";
 import { Address } from "@/models/Address";
-import { ApiError, handler, ok, parseBody, requireAdmin } from "@/lib/api";
+import { ApiError, handler, ok, parseBody, requireAccess, requireAdmin } from "@/lib/api";
 import { serialize } from "@/lib/utils";
+import { logActivity } from "@/lib/activity";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async (_req: Request, { params }: Ctx) => {
-  await requireAdmin();
+  await requireAccess("customers");
   const { id } = await params;
   if (!Types.ObjectId.isValid(id)) throw new ApiError(404, "Customer not found");
   await connectDB();
@@ -31,5 +32,6 @@ export const PATCH = handler(async (req: Request, { params }: Ctx) => {
   await connectDB();
   const r = await User.updateOne({ _id: id, role: "USER" }, { status });
   if (!r.matchedCount) throw new ApiError(404, "Customer not found");
+  logActivity(admin, "status", "customers", `Customer account ${status === "blocked" ? "blocked" : "unblocked"}`, id);
   return ok({ ok: true });
 });

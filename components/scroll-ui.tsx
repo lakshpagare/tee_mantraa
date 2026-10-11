@@ -25,7 +25,7 @@ export function ScrollUI() {
             exit={{ opacity: 0, y: 20 }}
             onClick={() => ((window as any).__lenis ? (window as any).__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: "smooth" }))}
             aria-label="Back to top"
-            className="fixed bottom-24 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white shadow-sm transition-colors hover:bg-ink hover:text-white md:bottom-8 md:right-8"
+            className="fixed bottom-24 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper shadow-sm transition-colors hover:bg-ink hover:text-paper md:bottom-8 md:right-8"
           >
             <ArrowUp className="h-4 w-4" />
           </motion.button>

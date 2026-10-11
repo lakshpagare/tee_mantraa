@@ -3,7 +3,7 @@ export interface InfoPage { title: string; eyebrow: string; intro: string; secti
 export const INFO_PAGES: Record<string, InfoPage> = {
   about: {
     title: "About", eyebrow: "The brand",
-    intro: "VÉRANO makes considered everyday clothing — clean silhouettes, honest fabrics and details that last.",
+    intro: "tee-mantraa makes considered everyday clothing — clean silhouettes, honest fabrics and details that last.",
     sections: [
       { heading: "What we do", body: "We design shirts, tees, hoodies, jeans, jackets and accessories for modern life: pieces that move easily from a workday to a weekend plan without trying too hard." },
       { heading: "How we work", body: "Small, focused collections. Fabrics chosen for hand-feel and longevity. Fits tested on real people. We would rather release fewer pieces and get each one right." },
@@ -27,7 +27,7 @@ export const INFO_PAGES: Record<string, InfoPage> = {
     intro: "Questions about an order, a fit or a return? Write to us and we'll reply within one business day.",
     sections: [
       { heading: "Email & phone", body: "Use the email and phone number shown at the bottom of every page. Support hours: Monday to Saturday, 10am – 7pm IST." },
-      { heading: "Order queries", body: "Please include your order number (it starts with VR-) so we can help faster." },
+      { heading: "Order queries", body: "Please include your order number (it starts with TM-) so we can help faster." },
     ],
   },
   shipping: {

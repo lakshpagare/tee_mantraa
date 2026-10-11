@@ -4,7 +4,8 @@ import { HomepageSection } from "@/models/HomepageSection";
 import { ApiError, handler, ok, parseBody, requireAdmin } from "@/lib/api";
 import { getHomepage } from "@/lib/data";
 import { SECTION_KEYS, SECTION_SCHEMA } from "@/lib/homepage-defaults";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { logActivity } from "@/lib/activity";
 
 const schema = z.object({
   key: z.string(),
@@ -18,7 +19,7 @@ export const GET = handler(async () => {
 });
 
 export const PUT = handler(async (req: Request) => {
-  await requireAdmin();
+  const actor = await requireAdmin();
   const { key, enabled, data } = await parseBody(req, schema);
   if (!(SECTION_KEYS as string[]).includes(key)) throw new ApiError(400, "Unknown section");
   // Only persist fields declared in the section schema (prevents junk/oversized payloads).
@@ -31,6 +32,8 @@ export const PUT = handler(async (req: Request) => {
   }
   await connectDB();
   await HomepageSection.findOneAndUpdate({ key }, { key, enabled, data: clean }, { upsert: true });
+  logActivity(actor, "update", "homepage", `Edited homepage section “${key}”${enabled ? "" : " (hidden)"}`);
+  revalidateTag("homepage");
   revalidatePath("/");
   return ok({ ok: true });
 });

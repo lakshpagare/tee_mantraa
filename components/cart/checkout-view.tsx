@@ -15,6 +15,8 @@ import { CouponBox, TotalsTable } from "@/components/cart/order-summary";
 import { useCartTotals } from "@/hooks/use-cart-totals";
 import { useSite } from "@/hooks/use-site";
 import { openRazorpay } from "@/lib/razorpay-client";
+import { computeTotals, maxRedeemablePoints } from "@/lib/pricing";
+import { track } from "@/components/analytics";
 import { INDIAN_STATES } from "@/lib/constants";
 import { addressFormSchema, type AddressForm } from "@/lib/validators";
 import { useCart } from "@/store/cart";
@@ -42,7 +44,25 @@ export function CheckoutView() {
   const [payment, setPayment] = useState<Payment>("RAZORPAY");
   const [submitting, setSubmitting] = useState(false);
   const [saved, setSaved] = useState<any[]>([]);
-  const { items, couponCode, error, applying, apply, remove, totals } = useCartTotals(delivery);
+  const { items, couponCode, error, applying, apply, remove, totals, offer } = useCartTotals(delivery);
+  const [waOptIn, setWaOptIn] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [usePoints, setUsePoints] = useState(false);
+  const [giftInput, setGiftInput] = useState("");
+  const [gift, setGift] = useState<{ code: string; balance: number } | null>(null);
+  const [giftErr, setGiftErr] = useState("");
+  const pointsAmount = usePoints ? maxRedeemablePoints(totals.subtotal, totals.discount, points) : 0;
+  const giftAmount = gift ? Math.min(gift.balance, Math.max(0, totals.subtotal - totals.discount - pointsAmount)) : 0;
+  const final = { ...computeTotals(totals.subtotal, totals.discount, delivery, site, { points: pointsAmount, gift: giftAmount }), offerDiscount: totals.offerDiscount, offerName: totals.offerName };
+  const applyGift = async () => {
+    setGiftErr("");
+    try {
+      const r = await fetch("/api/gift-cards/validate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: giftInput }) });
+      const d = await r.json();
+      if (!d.ok) return setGiftErr(d.error || "Invalid gift card");
+      setGift({ code: d.code, balance: d.balance });
+    } catch { setGiftErr("Could not check the gift card. Please try again."); }
+  };
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<AddressForm>({ resolver: zodResolver(addressFormSchema), defaultValues: { state: "" } });
 
@@ -50,6 +70,7 @@ export function CheckoutView() {
   useEffect(() => {
     if (!session?.user) return;
     reset((v) => ({ ...v, fullName: v.fullName || session.user.name || "", email: v.email || session.user.email || "" }));
+    fetch("/api/account/rewards").then((r) => r.json()).then((d) => setPoints(d.points || 0)).catch(() => {});
     fetch("/api/account/addresses").then((r) => r.json()).then((d) => {
       setSaved(d.addresses || []);
       const def = (d.addresses || []).find((a: any) => a.isDefault) || d.addresses?.[0];
@@ -73,11 +94,15 @@ export function CheckoutView() {
           deliveryMethod: delivery,
           paymentMethod: payment,
           couponCode: couponCode || undefined,
+          usePoints,
+          whatsappOptIn: waOptIn,
+          giftCardCode: gift?.code,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not place your order");
 
+      track("begin_checkout", { currency: "INR", value: final.total });
       clear(); // order now owns the items (and any stock reservation)
       if (payment === "COD") {
         router.push(`/order/${data.orderId}?placed=1`);
@@ -142,6 +167,8 @@ export function CheckoutView() {
             </div>
           </Section>
 
+          <label className="flex cursor-pointer items-start gap-3 border border-line p-4 text-sm"><input type="checkbox" className="mt-0.5 accent-black" checked={waOptIn} onChange={(e) => setWaOptIn(e.target.checked)} /><span>Send my order updates on WhatsApp <span className="block text-xs text-muted">Confirmation, shipping and delivery messages to the phone number above. Reply STOP any time.</span></span></label>
+
           <Section n={4} title="Payment method">
             <div className="space-y-3" role="radiogroup" aria-label="Payment method">
               <label className={opt(payment === "RAZORPAY")}><span className="flex items-center gap-3"><input type="radio" className="accent-black" checked={payment === "RAZORPAY"} onChange={() => setPayment("RAZORPAY")} /><span><span className="block text-sm font-medium">Pay online</span><span className="text-xs text-muted">UPI, cards, netbanking &amp; wallets via Razorpay</span></span></span></label>
@@ -155,15 +182,30 @@ export function CheckoutView() {
           <ul className="max-h-72 space-y-4 overflow-y-auto pr-1" data-lenis-prevent>
             {items.map((i) => (
               <li key={i.key} className="flex gap-3">
-                <div className="relative w-16 shrink-0"><Img src={i.image} alt={i.name} ratio="4/5" sizes="64px" /><span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ink px-1 text-[10px] text-white">{i.quantity}</span></div>
+                <div className="relative w-16 shrink-0"><Img src={i.image} alt={i.name} ratio="4/5" sizes="64px" /><span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ink px-1 text-[10px] text-paper">{i.quantity}</span></div>
                 <div className="min-w-0 flex-1 text-sm"><p className="line-clamp-1">{i.name}</p><p className="text-xs text-muted">{i.color} · {i.size}</p></div>
                 <span className="text-sm">{formatINR(i.price * i.quantity)}</span>
               </li>
             ))}
           </ul>
           <CouponBox code={couponCode} error={error} applying={applying} onApply={apply} onRemove={remove} />
-          <TotalsTable t={totals} />
-          <Button type="submit" size="lg" className="w-full" loading={submitting}>{payment === "COD" ? "Place order" : `Pay ${formatINR(totals.total)}`}</Button>
+          {points > 0 && (
+            <label className="flex cursor-pointer items-start gap-3 border border-line bg-paper p-4 text-sm">
+              <input type="checkbox" className="mt-0.5 accent-black" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} />
+              <span>Use reward points <span className="text-muted">({points} available · up to 20% of the order)</span>{usePoints && pointsAmount > 0 && <strong className="mt-1 block">−{formatINR(pointsAmount)} applied</strong>}</span>
+            </label>
+          )}
+          {gift ? (
+            <div className="flex items-center justify-between border border-line bg-paper px-4 py-3 text-sm"><span>Gift card <strong>{gift.code}</strong> · balance {formatINR(gift.balance)}</span><button type="button" className="text-muted hover:text-ink" onClick={() => { setGift(null); setGiftInput(""); }} aria-label="Remove gift card">✕</button></div>
+          ) : (
+            <div>
+              <div className="flex gap-2"><Input aria-label="Gift card code" placeholder="Gift card code" value={giftInput} onChange={(e) => setGiftInput(e.target.value.toUpperCase())} maxLength={30} /><Button type="button" variant="outline" onClick={applyGift} disabled={giftInput.length < 3}>Apply</Button></div>
+              {giftErr && <p role="alert" className="mt-2 text-xs text-red-600">{giftErr}</p>}
+            </div>
+          )}
+          {offer.hint && <p className="border border-dashed border-line p-3 text-xs text-muted">💡 {offer.hint}</p>}
+          <TotalsTable t={final} />
+          <Button type="submit" size="lg" className="w-full" loading={submitting}>{final.total === 0 || payment === "COD" ? "Place order" : `Pay ${formatINR(final.total)}`}</Button>
           <p className="text-center text-xs text-muted">Payments are processed securely. We never see your card details.</p>
         </aside>
       </form>

@@ -6,7 +6,9 @@ import { X } from "lucide-react";
 import { useSite } from "@/hooks/use-site";
 import { useLockScroll } from "@/hooks/use-lock-scroll";
 import { useUI } from "@/store/ui";
-import { isAdminRole } from "@/lib/constants";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { isPanelRole } from "@/lib/constants";
+import { Logo } from "@/components/logo";
 
 const MAIN = [
   { href: "/shop?new=1", label: "New Arrivals" },
@@ -27,7 +29,7 @@ export function MobileMenu() {
     { href: "/wishlist", label: "Wishlist" },
     { href: "/contact", label: "Contact" },
     { href: "/faq", label: "FAQ" },
-    ...(isAdminRole(data?.user?.role) ? [{ href: "/admin", label: "Admin" }] : []),
+    ...(isPanelRole(data?.user?.role) ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
   return (
@@ -39,14 +41,14 @@ export function MobileMenu() {
           aria-modal="true"
           aria-label="Menu"
           data-lenis-prevent
-          className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-white"
+          className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-paper"
           initial={{ clipPath: "inset(0 0 100% 0)" }}
           animate={{ clipPath: "inset(0 0 0% 0)" }}
           exit={{ clipPath: "inset(0 0 100% 0)" }}
           transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
         >
           <div className="container-wide flex h-16 shrink-0 items-center justify-between">
-            <span className="font-display text-2xl tracking-[0.18em]">{site.brandName}</span>
+            <Logo name={site.brandName} size="sm" />
             <button aria-label="Close menu" onClick={close} className="flex h-10 w-10 items-center justify-center"><X className="h-5 w-5" /></button>
           </div>
           <nav className="container-wide flex flex-1 flex-col justify-center pb-10" aria-label="Mobile">
@@ -63,6 +65,7 @@ export function MobileMenu() {
               {secondary.map((l) => (
                 <li key={l.href}><Link href={l.href} onClick={close} className="text-[11px] uppercase tracking-[0.22em] text-muted">{l.label}</Link></li>
               ))}
+              <li><ThemeToggle label className="text-muted" /></li>
             </motion.ul>
           </nav>
         </motion.div>

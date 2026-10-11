@@ -4,12 +4,14 @@ import { useRef, useState } from "react";
 import { Img } from "@/components/ui/img";
 import { cn } from "@/lib/utils";
 
-export function Gallery({ images, name }: { images: string[]; name: string }) {
+export function Gallery({ images, name, video }: { images: string[]; name: string; video?: string }) {
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState(false);
   const [origin, setOrigin] = useState("50% 50%");
   const scroller = useRef<HTMLDivElement>(null);
   const list = images.length ? images : ["/images/products/placeholder.svg"];
+  const total = list.length + (video ? 1 : 0);
+  const onVideo = !!video && active === list.length;
 
   return (
     <div className="lg:flex lg:gap-4">
@@ -22,6 +24,11 @@ export function Gallery({ images, name }: { images: string[]; name: string }) {
             </button>
           </li>
         ))}
+        {video && (
+          <li>
+            <button onClick={() => setActive(list.length)} aria-label="Play product video" aria-current={onVideo} className={cn("flex aspect-[4/5] w-full items-center justify-center border bg-ink text-paper", onVideo ? "border-ink" : "border-transparent opacity-80 hover:opacity-100")}>▶</button>
+          </li>
+        )}
       </ul>
 
       {/* Desktop main with hover zoom */}
@@ -32,9 +39,13 @@ export function Gallery({ images, name }: { images: string[]; name: string }) {
       >
         <AnimatePresence mode="popLayout">
           <motion.div key={active} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }}>
-            <div className="h-full w-full transition-transform duration-300 ease-out" style={{ transform: zoom ? "scale(2)" : "scale(1)", transformOrigin: origin }}>
-              <Img src={list[active]} alt={`${name} — view ${active + 1}`} priority sizes="(min-width:1024px) 45vw, 100vw" className="h-full w-full" />
-            </div>
+            {onVideo ? (
+              <video src={video} controls autoPlay muted loop playsInline className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full transition-transform duration-300 ease-out" style={{ transform: zoom ? "scale(2)" : "scale(1)", transformOrigin: origin }}>
+                <Img src={list[active]} alt={`${name} — view ${active + 1}`} priority sizes="(min-width:1024px) 45vw, 100vw" className="h-full w-full" />
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -46,8 +57,9 @@ export function Gallery({ images, name }: { images: string[]; name: string }) {
           {list.map((src, i) => (
             <div key={src + i} className="w-full shrink-0 snap-center"><Img src={src} alt={`${name} — view ${i + 1}`} ratio="4/5" priority={i === 0} sizes="100vw" /></div>
           ))}
+          {video && <div className="w-full shrink-0 snap-center"><video src={video} controls muted loop playsInline className="aspect-[4/5] w-full object-cover" /></div>}
         </div>
-        {list.length > 1 && <div className="mt-3 flex justify-center gap-2">{list.map((_, i) => <span key={i} className={cn("h-1.5 rounded-full transition-all", i === active ? "w-6 bg-ink" : "w-1.5 bg-ink/25")} />)}</div>}
+        {total > 1 && <div className="mt-3 flex justify-center gap-2">{Array.from({ length: total }).map((_, i) => <span key={i} className={cn("h-1.5 rounded-full transition-all", i === active ? "w-6 bg-ink" : "w-1.5 bg-ink/25")} />)}</div>}
       </div>
     </div>
   );

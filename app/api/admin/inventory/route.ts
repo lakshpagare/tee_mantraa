@@ -1,10 +1,10 @@
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
-import { handler, ok, requireAdmin } from "@/lib/api";
+import { handler, ok, requireAccess } from "@/lib/api";
 import { escapeRegex, serialize } from "@/lib/utils";
 
 export const GET = handler(async (req: Request) => {
-  await requireAdmin();
+  await requireAccess("inventory");
   const sp = new URL(req.url).searchParams;
   const q = (sp.get("q") || "").trim().slice(0, 60);
   const filter = sp.get("filter");

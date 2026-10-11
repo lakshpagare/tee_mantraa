@@ -13,6 +13,7 @@ export interface ProductDTO {
   subcategory?: string;
   brand?: string;
   images: string[];
+  video?: string;
   colors: { name: string; hex: string }[];
   sizes: string[];
   stock: number;
@@ -86,6 +87,14 @@ export interface SiteSettingsDTO {
   instagram: string;
   facebook: string;
   youtube: string;
+  whatsapp: string;
+  gatewayFeePct: number;
+  alertEmail: string;
+  businessName: string;
+  gstin: string;
+  businessAddress: string;
+  businessState: string;
+  unserviceablePincodes: string;
 }
 
 export interface CartItem {

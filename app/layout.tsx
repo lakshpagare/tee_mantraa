@@ -20,17 +20,26 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: { type: "website", siteName: s.brandName, title: `${s.brandName} — ${s.tagline}`, locale: "en_IN" },
     twitter: { card: "summary_large_image", title: `${s.brandName} — ${s.tagline}` },
     alternates: { canonical: "/" },
+    manifest: "/manifest.webmanifest",
+    icons: { apple: "/apple-touch-icon.png" },
+    appleWebApp: { capable: true, title: s.brandName, statusBarStyle: "default" },
   };
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#ffffff" };
+// Runs before first paint so there is no light/dark flash.
+const THEME_INIT = `(function(){try{var t=localStorage.getItem("tm-theme");if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.classList.toggle("dark",t==="dark")}catch(e){}})();`;
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#ffffff" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSettings();
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body>
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
           Skip to content
         </a>
         <Providers settings={settings}>{children}</Providers>

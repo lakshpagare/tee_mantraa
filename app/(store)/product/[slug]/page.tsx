@@ -5,7 +5,8 @@ import { Gallery } from "@/components/product/gallery";
 import { ProductDetails } from "@/components/product/product-details";
 import { ProductCard, categoryName } from "@/components/product/product-card";
 import { ReviewsSection } from "@/components/product/reviews-section";
-import { getProductBySlug, getRelatedProducts, getReviews } from "@/lib/data";
+import { getCompleteTheLook, getProductBySlug, getRelatedProducts, getReviews } from "@/lib/data";
+import { RecentlyViewed } from "@/components/product/recently-viewed";
 import { appUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -29,7 +30,7 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
-  const [related, { reviews, breakdown }] = await Promise.all([getRelatedProducts(product), getReviews(product._id)]);
+  const [related, look, { reviews, breakdown }] = await Promise.all([getRelatedProducts(product), getCompleteTheLook(product), getReviews(product._id)]);
   const cat = typeof product.category === "object" && product.category ? product.category : null;
   const available = product.stock - product.reserved > 0;
 
@@ -41,7 +42,7 @@ export default async function ProductPage({ params }: Props) {
       image: product.images.map(abs),
       description: product.shortDescription || product.description,
       sku: product.sku,
-      brand: { "@type": "Brand", name: product.brand || "VÉRANO" },
+      brand: { "@type": "Brand", name: product.brand || "tee-mantraa" },
       ...(product.reviewCount > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: product.reviewCount } } : {}),
       offers: {
         "@type": "Offer",
@@ -77,12 +78,20 @@ export default async function ProductPage({ params }: Props) {
           </ol>
         </nav>
         <div className="grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-20">
-          <Gallery images={product.images} name={product.name} />
+          <Gallery images={product.images} name={product.name} video={product.video || undefined} />
           <ProductDetails product={product} category={categoryName(product)} />
         </div>
       </div>
 
       <ReviewsSection productId={product._id} rating={product.rating} count={product.reviewCount} reviews={reviews} breakdown={breakdown} />
+
+      {look.length > 0 && (
+        <section className="container-wide pb-14" aria-labelledby="look-h">
+          <p className="eyebrow mb-3">Style it with</p>
+          <h2 id="look-h" className="display mb-10 text-4xl md:text-5xl">Complete the look</h2>
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-4 md:gap-x-5">{look.map((p) => <li key={p._id}><ProductCard product={p} /></li>)}</ul>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="container-wide pb-10" aria-labelledby="related-h">
@@ -92,6 +101,7 @@ export default async function ProductPage({ params }: Props) {
           </ul>
         </section>
       )}
+      <RecentlyViewed track={product._id} />
     </>
   );
 }

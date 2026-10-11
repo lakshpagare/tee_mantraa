@@ -2,14 +2,14 @@ import { connectDB } from "@/lib/db";
 import { Order } from "@/models/Order";
 import { User } from "@/models/User";
 import { Product } from "@/models/Product";
-import { handler, ok, requireAdmin } from "@/lib/api";
+import { handler, ok, requireAccess } from "@/lib/api";
 import { serialize } from "@/lib/utils";
 
 const RANGES: Record<string, number> = { today: 1, "7d": 7, "30d": 30, "3m": 90, "1y": 365 };
 const VALID = { status: { $nin: ["Cancelled", "Returned"] } };
 
 export const GET = handler(async (req: Request) => {
-  await requireAdmin();
+  await requireAccess("dashboard");
   const range = new URL(req.url).searchParams.get("range") || "30d";
   const days = RANGES[range] || 30;
   const now = new Date();

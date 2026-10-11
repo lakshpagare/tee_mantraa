@@ -11,7 +11,7 @@ export async function subscribeNewsletter(email: string): Promise<{ ok: boolean;
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message || "Enter a valid email address" };
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (!rateLimit(`newsletter:${ip}`, 5, 60 * 60_000).ok) return { ok: false, message: "Too many attempts. Please try again later." };
+  if (!(await rateLimit(`newsletter:${ip}`, 5, 60 * 60_000)).ok) return { ok: false, message: "Too many attempts. Please try again later." };
   try {
     await connectDB();
     const existing = await NewsletterSubscriber.findOne({ email: parsed.data.email });

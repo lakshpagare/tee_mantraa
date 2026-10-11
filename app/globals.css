@@ -2,12 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme tokens (space-separated RGB so Tailwind opacity modifiers work). Toggle with the `dark` class on <html>. */
 :root {
-  --bg: #ffffff;
-  --soft: #f7f7f5;
-  --ink: #111111;
-  --muted: #6b6b6b;
-  --line: #e8e8e8;
+  --ink: 17 17 17;
+  --soft: 247 247 245;
+  --muted: 107 107 107;
+  --line: 232 232 232;
+  --paper: 255 255 255;
+}
+html.dark {
+  --ink: 244 244 240;
+  --soft: 27 27 26;
+  --muted: 160 160 154;
+  --line: 52 52 50;
+  --paper: 15 15 14;
+  color-scheme: dark;
+}
+/* The admin panel is always light. */
+[data-admin] {
+  --ink: 17 17 17; --soft: 247 247 245; --muted: 107 107 107; --line: 232 232 232; --paper: 255 255 255;
+  color-scheme: light;
 }
 
 html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
@@ -17,15 +31,22 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: hidden; }
 
 body {
-  background: var(--bg);
-  color: var(--ink);
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-::selection { background: var(--ink); color: #fff; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+body { overflow-x: clip; }
+
+/* iOS Safari zooms into inputs below 16px */
+@media (max-width: 767px) {
+  input:not([type=checkbox]):not([type=radio]):not([type=color]), select, textarea { font-size: 16px !important; }
+}
+
+::selection { background: rgb(var(--ink)); color: rgb(var(--paper)); }
+:focus-visible { outline: 2px solid rgb(var(--ink)); outline-offset: 3px; }
 
 @layer components {
   .container-wide { @apply mx-auto w-full max-w-[1600px] px-5 md:px-10 lg:px-14; }
@@ -47,3 +68,11 @@ body {
 
 /* Safe-area padding for mobile bottom nav */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Print (invoices): hide site chrome */
+@media print {
+  header, footer, nav[aria-label="Quick navigation"], .no-print, [role="dialog"], a[href="#main"] { display: none !important; }
+  :root, html.dark { --ink: 17 17 17; --soft: 247 247 245; --muted: 107 107 107; --line: 232 232 232; --paper: 255 255 255; color-scheme: light; }
+  body { background: #fff; color: #111; }
+  main { padding: 0 !important; }
+}

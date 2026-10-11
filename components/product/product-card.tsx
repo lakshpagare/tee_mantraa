@@ -6,6 +6,7 @@ import { Price } from "@/components/ui/price";
 import { Stars } from "@/components/ui/stars";
 import { WishlistButton } from "@/components/product/wishlist-button";
 import { useUI } from "@/store/ui";
+import { useFlashPrice } from "@/components/flash-sale";
 import { discountPct } from "@/lib/utils";
 import type { ProductDTO } from "@/types";
 
@@ -13,7 +14,10 @@ export const categoryName = (p: ProductDTO) => (typeof p.category === "object" &
 
 export function ProductCard({ product, showRating = false, priority = false }: { product: ProductDTO; showRating?: boolean; priority?: boolean }) {
   const openQuickView = useUI((s) => s.openQuickView);
-  const pct = discountPct(product.price, product.compareAtPrice);
+  const flash = useFlashPrice(product);
+  const shownPrice = flash ? flash.price : product.price;
+  const shownCompare = flash ? Math.max(product.price, product.compareAtPrice || 0) : product.compareAtPrice;
+  const pct = discountPct(shownPrice, shownCompare);
   const soldOut = product.stock - product.reserved <= 0;
   const [first, second] = product.images;
 
@@ -30,27 +34,27 @@ export function ProductCard({ product, showRating = false, priority = false }: {
         </Link>
 
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col items-start gap-1.5">
-          {product.bestSeller && <span className="bg-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white">Best Seller</span>}
-          {!product.bestSeller && product.newArrival && <span className="bg-white px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em]">New</span>}
-          {pct > 0 && <span className="bg-white px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-red-700">-{pct}%</span>}
+          {product.bestSeller && <span className="bg-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-paper">Best Seller</span>}
+          {!product.bestSeller && product.newArrival && <span className="bg-paper px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em]">New</span>}
+          {pct > 0 && <span className="bg-paper px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-red-700">-{pct}%</span>}
         </div>
 
-        <WishlistButton productId={product._id} className="absolute right-2 top-2 z-20 h-9 w-9 rounded-full bg-white/80 backdrop-blur hover:bg-white" />
+        <WishlistButton productId={product._id} className="absolute right-2 top-2 z-20 h-9 w-9 rounded-full bg-paper/80 backdrop-blur hover:bg-paper" />
 
         {soldOut ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-white/80 py-3 text-center text-[11px] font-medium uppercase tracking-[0.2em]">Sold out</div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-paper/80 py-3 text-center text-[11px] font-medium uppercase tracking-[0.2em]">Sold out</div>
         ) : (
           <>
             <button
               type="button"
               onClick={() => openQuickView(product)}
               aria-label={`Quick add ${product.name}`}
-              className="absolute inset-x-3 bottom-3 z-20 hidden translate-y-[130%] bg-white/95 py-3 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur transition-all duration-500 hover:bg-ink hover:text-white focus-visible:translate-y-0 group-hover:translate-y-0 lg:block"
+              className="absolute inset-x-3 bottom-3 z-20 hidden translate-y-[130%] bg-paper/95 py-3 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur transition-all duration-500 hover:bg-ink hover:text-paper focus-visible:translate-y-0 group-hover:translate-y-0 lg:block"
             >
               Quick add
             </button>
             <button type="button" onClick={() => openQuickView(product)} aria-label={`Quick add ${product.name}`}
-              className="absolute bottom-2 right-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow lg:hidden">
+              className="absolute bottom-2 right-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-paper shadow lg:hidden">
               <Plus className="h-4 w-4" />
             </button>
           </>
@@ -62,7 +66,7 @@ export function ProductCard({ product, showRating = false, priority = false }: {
         <h3 className="text-sm leading-snug">
           <Link href={`/product/${product.slug}`} className="link-underline">{product.name}</Link>
         </h3>
-        <Price price={product.price} compareAt={product.compareAtPrice} className="text-sm" />
+        <Price price={shownPrice} compareAt={shownCompare} className={flash ? "text-sm text-[#B4231B]" : "text-sm"} />
         {showRating && product.reviewCount > 0 && (
           <div className="flex items-center gap-2 pt-0.5">
             <Stars value={product.rating} size={12} />

@@ -9,10 +9,11 @@ import { BrandStory } from "@/components/home/brand-story";
 import { Testimonials } from "@/components/home/testimonials";
 import { SocialGrid } from "@/components/home/social-grid";
 import { NewsletterSection } from "@/components/home/newsletter-section";
+import { getInstagramPosts } from "@/lib/instagram";
 import { getActiveBanner, getBestSellers, getCategories, getHomepage, getNewArrivals, getTestimonials } from "@/lib/data";
 
 export default async function HomePage() {
-  const [home, categories, testimonials, banner] = await Promise.all([getHomepage(), getCategories(), getTestimonials(), getActiveBanner()]);
+  const [home, categories, testimonials, banner, instagram] = await Promise.all([getHomepage(), getCategories(), getTestimonials(), getActiveBanner(), getInstagramPosts(8)]);
   const [newArrivals, bestSellers] = await Promise.all([
     getNewArrivals(8, home.newArrivals.data.productIds || []),
     getBestSellers(8, home.bestSellers.data.productIds || []),
@@ -36,7 +37,7 @@ export default async function HomePage() {
       )}
       {on("story") && <BrandStory data={home.story.data as any} />}
       {on("testimonials") && <Testimonials data={home.testimonials.data as any} items={testimonials} />}
-      {on("social") && <SocialGrid data={home.social.data} />}
+      {on("social") && <SocialGrid data={home.social.data} live={instagram} />}
       {on("newsletter") && <NewsletterSection data={home.newsletter.data as any} />}
     </>
   );

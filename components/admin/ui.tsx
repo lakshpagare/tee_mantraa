@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +14,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
 
 export function Card({ children, className, title, action }: { children: ReactNode; className?: string; title?: string; action?: ReactNode }) {
   return (
-    <section className={cn("border border-line bg-white", className)}>
+    <section className={cn("border border-line bg-paper", className)}>
       {title && <header className="flex items-center justify-between border-b border-line px-5 py-3.5"><h2 className="text-sm font-semibold">{title}</h2>{action}</header>}
       {children}
     </section>
@@ -21,7 +23,7 @@ export function Card({ children, className, title, action }: { children: ReactNo
 
 export function Stat({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: string; tone?: "warn" }) {
   return (
-    <div className="border border-line bg-white p-5">
+    <div className="border border-line bg-paper p-5">
       <p className="text-xs uppercase tracking-wider text-muted">{label}</p>
       <p className={cn("mt-2 text-2xl font-semibold tracking-tight", tone === "warn" && "text-amber-600")}>{value}</p>
       {sub && <p className="mt-1 text-xs text-muted">{sub}</p>}

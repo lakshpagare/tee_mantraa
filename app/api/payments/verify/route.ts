@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { Order } from "@/models/Order";
 import { ApiError, handler, ok, parseBody, requireUser } from "@/lib/api";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
-import { commitOrderStock } from "@/lib/orders";
+import { markOrderPaid } from "@/lib/orders";
 
 const schema = z.object({
   orderId: z.string().length(24),
@@ -26,18 +26,6 @@ export const POST = handler(async (req: Request) => {
     await order.save();
     throw new ApiError(400, "Payment could not be verified. If money was debited, contact support with your order number.");
   }
-
-  order.paymentStatus = "PAID";
-  order.razorpayPaymentId = b.razorpay_payment_id;
-  if (order.stockState === "RESERVED") {
-    order.status = "Confirmed";
-    order.timeline.push({ status: "Confirmed", note: "Payment received", at: new Date() });
-    await commitOrderStock(order);
-  } else {
-    // Paid after the reservation window expired: keep order for manual review/refund.
-    order.status = "Pending";
-    order.timeline.push({ status: "Pending", note: "Paid after reservation expired — needs review", at: new Date() });
-  }
-  await order.save();
+  await markOrderPaid(order, b.razorpay_payment_id);
   return ok({ ok: true, orderId: String(order._id) });
 });

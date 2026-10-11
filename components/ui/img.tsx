@@ -19,13 +19,14 @@ interface Props {
 }
 
 /** Consistent image: object-cover, lazy by default, blur placeholder, graceful for SVG/remote. */
-export function Img({ src, alt, ratio, sizes = "(max-width: 768px) 100vw, 50vw", priority, className, imgClassName }: Props) {
+export function Img({ src: rawSrc, alt, ratio, sizes = "(max-width: 768px) 100vw, 50vw", priority, className, imgClassName }: Props) {
+  const src = rawSrc || "/images/products/placeholder.svg";
   const isSvg = src.endsWith(".svg");
   const unoptimized = isSvg || !OPTIMIZABLE.test(src);
   return (
     <div className={cn("relative overflow-hidden bg-soft", className)} style={ratio ? { aspectRatio: ratio } : undefined}>
       <Image
-        src={src || "/images/products/placeholder.svg"}
+        src={src}
         alt={alt}
         fill
         sizes={sizes}

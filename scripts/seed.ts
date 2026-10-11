@@ -28,13 +28,21 @@ import { HomepageSection } from "../models/HomepageSection";
 import { Testimonial } from "../models/Testimonial";
 import { NewsletterSubscriber } from "../models/NewsletterSubscriber";
 import { SiteSettings } from "../models/SiteSettings";
+import { BlogPost } from "../models/BlogPost";
+import { GiftCard } from "../models/GiftCard";
+import { ReturnRequest } from "../models/ReturnRequest";
+import { StockAlert } from "../models/StockAlert";
+import { Offer } from "../models/Offer";
+import { ActivityLog } from "../models/ActivityLog";
+import { SharedWishlist } from "../models/SharedWishlist";
+import { SearchQuery } from "../models/SearchQuery";
 import { recomputeRating } from "../lib/reviews";
 import { computeTotals } from "../lib/pricing";
 import { HOMEPAGE_DEFAULTS } from "../lib/homepage-defaults";
 import { CATEGORIES, COLLECTIONS, COLOR_HEX, PRODUCTS } from "./catalog.mjs";
 
 const args = process.argv.slice(2);
-const DEMO_DOMAIN = "demo.verano.test";
+const DEMO_DOMAIN = "demo.tee-mantraa.test";
 
 function rng(seed: number) {
   return () => {
@@ -56,7 +64,7 @@ async function seedAdmin() {
   const passwordHash = await bcrypt.hash(password, 12);
   await User.findOneAndUpdate(
     { email },
-    { name: process.env.SEED_ADMIN_NAME || "Store Admin", email, passwordHash, role: "ADMIN", status: "active", provider: "credentials", emailVerified: new Date() },
+    { name: process.env.SEED_ADMIN_NAME || "Store Admin", email, passwordHash, role: "SUPER_ADMIN", status: "active", provider: "credentials", emailVerified: new Date() },
     { upsert: true, new: true }
   );
   console.log(`✔ Admin ready: ${email}`);
@@ -72,12 +80,14 @@ async function seedDemo() {
   await Promise.all([
     Category.deleteMany({}), Product.deleteMany({}), Collection.deleteMany({}), Review.deleteMany({}), Testimonial.deleteMany({}),
     Coupon.deleteMany({}), Banner.deleteMany({}), HomepageSection.deleteMany({}), NewsletterSubscriber.deleteMany({}),
+    Offer.deleteMany({}), ActivityLog.deleteMany({}), SharedWishlist.deleteMany({}), SearchQuery.deleteMany({}),
+    BlogPost.deleteMany({}), GiftCard.deleteMany({}), ReturnRequest.deleteMany({}), StockAlert.deleteMany({}),
     Order.deleteMany({}), Cart.deleteMany({ user: { $in: ids } }), Wishlist.deleteMany({ user: { $in: ids } }),
     Address.deleteMany({ user: { $in: ids } }), User.deleteMany({ _id: { $in: ids } }),
   ]);
 
   // ---- settings & homepage CMS ----
-  await SiteSettings.findOneAndUpdate({ key: "site" }, { key: "site" }, { upsert: true });
+  await SiteSettings.findOneAndUpdate({ key: "site" }, { key: "site", brandName: "tee-mantraa", tagline: "Defined by Style.", contactEmail: "hello@tee-mantraa.example" }, { upsert: true });
   await HomepageSection.insertMany(Object.entries(HOMEPAGE_DEFAULTS).map(([key, v]) => ({ key, enabled: v.enabled, data: v.data })));
 
   // ---- categories ----
@@ -89,11 +99,11 @@ async function seedDemo() {
   const docs = PRODUCTS.map((p: any, i: number) => {
     const stock = i === 4 ? 2 : i === 17 ? 0 : i === 9 ? 4 : int(14, 80);
     return {
-      name: p.name, slug: p.slug, sku: `VR-${prefix[p.category]}-${String(i + 1).padStart(3, "0")}`,
+      name: p.name, slug: p.slug, sku: `TM-${prefix[p.category]}-${String(i + 1).padStart(3, "0")}`,
       shortDescription: p.short,
       description: `${p.short}\n\nCut for everyday wear and finished with considered details. Made from ${p.material.toLowerCase()} for a feel that gets better with wear.\n\nCare: machine wash cold with similar colours, line dry, warm iron if needed.`,
       price: p.price, compareAtPrice: p.compareAt || undefined, costPrice: Math.round(p.price * 0.42),
-      category: catBySlug.get(p.category)._id, subcategory: p.type === "bag" ? "Accessories" : undefined, brand: "VÉRANO",
+      category: catBySlug.get(p.category)._id, subcategory: p.type === "bag" ? "Accessories" : undefined, brand: "tee-mantraa",
       images: [`/images/products/${p.slug}-1.svg`, `/images/products/${p.slug}-2.svg`],
       colors: p.colors.map((n: string) => ({ name: n, hex: COLOR_HEX[n] })), sizes: p.sizes,
       stock, lowStockThreshold: 5, material: p.material, fit: p.fit, gender: p.gender,
@@ -120,7 +130,7 @@ async function seedDemo() {
   const customers: any[] = [];
   for (const [i, [name, city, state, pincode]] of people.entries()) {
     const email = `${name.toLowerCase().replace(" ", ".")}@${DEMO_DOMAIN}`;
-    const u: any = await User.create({ name, email, phone: `98${int(10000000, 99999999)}`, passwordHash: demoHash, role: "USER", emailVerified: new Date(), createdAt: new Date(Date.now() - int(5, 90) * 86400000) });
+    const u: any = await User.create({ name, email, phone: `98${int(10000000, 99999999)}`, passwordHash: demoHash, role: "USER", emailVerified: new Date(), points: int(0, 120), referralCode: `DEMO${i}${int(100, 999)}`, createdAt: new Date(Date.now() - int(5, 90) * 86400000) });
     await Address.create({ user: u._id, label: "Home", fullName: name, phone: u.phone, line1: `${int(2, 220)}, ${pick(["MG Road", "Park Street", "Lake View Apartments", "Green Avenue", "Station Road"])}`, city, state, pincode, isDefault: true });
     customers.push({ doc: u, city, state, pincode, i });
   }
@@ -148,6 +158,20 @@ async function seedDemo() {
     { code: "FESTIVE15", description: "15% off, up to ₹750", type: "PERCENT", value: 15, minOrder: 2499, maxDiscount: 750, perUserLimit: 1, active: true, expiryDate: new Date(now + 60 * 86400000) },
   ]);
   await Banner.create({ title: "FESTIVE EDIT — EXTRA 15% OFF", subtitle: "Use code FESTIVE15 on orders above ₹2,499.", image: "/images/banners/promo.svg", ctaText: "SHOP NOW", ctaLink: "/shop", active: false });
+  const catId = (slug: string) => catBySlug.get(slug)._id;
+  await Offer.insertMany([
+    { name: "Hoodie flash sale", label: "Flash sale: 20% off hoodies", type: "PERCENT_OFF", scope: "category", refs: [catId("hoodies")], minQty: 1, value: 20, flash: true, active: true, endDate: new Date(now + 36 * 3600000) },
+    { name: "Any 2 tees for ₹1,499", label: "Any 2 tees for ₹1,499", type: "BUNDLE_PRICE", scope: "category", refs: [catId("t-shirts")], minQty: 2, value: 1499, active: true },
+    { name: "Denim duo", label: "Buy 2 jeans, get 15% off", type: "PERCENT_OFF", scope: "category", refs: [catId("jeans")], minQty: 2, value: 15, active: true },
+    { name: "Accessories 3-for-2", label: "Buy 3 accessories, get 1 free", type: "BUY_X_GET_Y", scope: "category", refs: [catId("accessories")], minQty: 3, value: 1, active: true },
+  ]);
+  await SearchQuery.insertMany([["linen shirt", 14], ["hoodie", 11], ["wide leg jeans", 9], ["bomber jacket", 7], ["cargo trousers", 5]].map(([term, count]) => ({ term, count, zero: 0, lastAt: new Date() })));
+  await GiftCard.create({ code: "GIFT-DEMO500", initialAmount: 500, balance: 500, note: "Demo gift card", active: true, expiryDate: new Date(now + 365 * 86400000) });
+  await BlogPost.insertMany([
+    { title: "How to build a capsule wardrobe", slug: "capsule-wardrobe", excerpt: "Ten considered pieces, endless outfits.", coverImage: "/images/editorial/e1.svg", author: "The Studio", tags: ["style", "guide"], published: true, publishedAt: new Date(now - 6 * 86400000), content: "A capsule wardrobe is less about owning fewer things and more about owning things that work together.\n\n## Start with fit\n\nPick two trousers, one pair of jeans and a handful of shirts and tees in a tight palette: ecru, olive, navy and black. Everything should go with everything.\n\n## Add one layer\n\nA bomber or utility overshirt does the work of three jackets. Choose a neutral colour and a fabric that ages well.\n\n## Finish with accessories\n\nA good belt, a canvas tote and a cap complete the look without adding noise." },
+    { title: "Caring for linen", slug: "caring-for-linen", excerpt: "Wash it, wear it, let it soften.", coverImage: "/images/editorial/e3.svg", author: "The Studio", tags: ["care"], published: true, publishedAt: new Date(now - 14 * 86400000), content: "Linen gets better with every wash.\n\n## Washing\n\nMachine wash cold on a gentle cycle with similar colours. Avoid tumble drying; shake out and hang to dry.\n\n## Ironing\n\nIron while slightly damp on medium heat — or embrace the creases. That relaxed look is the point." },
+    { title: "Draft: Autumn lookbook notes", slug: "autumn-notes", excerpt: "Unpublished draft.", author: "The Studio", published: false, content: "Coming soon." },
+  ]);
   await NewsletterSubscriber.insertMany(["a.verma", "s.menon", "kiran.p", "lena.d", "farhan.q"].map((n) => ({ email: `${n}@${DEMO_DOMAIN}` })));
 
   // ---- orders (10) ----
@@ -159,7 +183,7 @@ async function seedDemo() {
     const status = statuses[n];
     const picks = Array.from({ length: int(1, 3) }, () => pick(products));
     const items = [...new Map(picks.map((p) => [p._id.toString(), p])).values()].map((p: any) => ({
-      product: p._id, name: p.name, slug: p.slug, image: p.images[0], sku: p.sku, size: pick(p.sizes), color: pick(p.colors as any[]).name, price: p.price, quantity: int(1, 2),
+      product: p._id, name: p.name, slug: p.slug, image: p.images[0], sku: p.sku, cost: p.costPrice || 0, size: pick(p.sizes), color: pick(p.colors as any[]).name, price: p.price, quantity: int(1, 2),
     }));
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
     const discount = n % 4 === 0 ? Math.min(200, subtotal) : 0;
@@ -171,7 +195,7 @@ async function seedDemo() {
     const timeline = (cancelled ? ["Pending", "Confirmed", status] : flow.slice(0, idx + 1)).map((s, k) => ({ status: s, note: k === 0 ? "Order placed" : `Marked ${s}`, at: new Date(created.getTime() + k * 8 * 3600000) }));
     const y = created, ymd = `${y.getFullYear()}${String(y.getMonth() + 1).padStart(2, "0")}${String(y.getDate()).padStart(2, "0")}`;
     await Order.create({
-      orderNumber: `VR-${ymd}-${1000 + n * 37}${n}`, user: c.doc._id, items,
+      orderNumber: `TM-${ymd}-${1000 + n * 37}${n}`, user: c.doc._id, items,
       shippingAddress: { fullName: c.doc.name, email: c.doc.email, phone: c.doc.phone, line1: "12, Sample Street", city: c.city, state: c.state, pincode: c.pincode, country: "India" },
       deliveryMethod: n % 5 === 4 ? "express" : "standard", ...totals, couponCode: discount ? "FLAT200" : undefined,
       paymentMethod: cod ? "COD" : "RAZORPAY",
@@ -212,8 +236,9 @@ async function seedDemo() {
   await Promise.all([User, Category, Product, Collection, Order, Review, Coupon].map((m: any) => m.syncIndexes()));
 
   console.log(`✔ Demo data: ${cats.length} categories, ${products.length} products, ${COLLECTIONS.length} collections, 10 customers, 10 testimonials, ${reviewDocs.length} reviews, 10 orders, 3 coupons`);
+  console.log("  Offers: flash sale on hoodies (36h), any 2 tees for ₹1,499, 2 jeans = 15% off, accessories 3-for-2");
   console.log(`  Demo customer logins: <name>@${DEMO_DOMAIN} (e.g. aarav.sharma@${DEMO_DOMAIN}) — password for this run: ${demoPassword}`);
-  console.log("  Try coupon codes: WELCOME10, FLAT200, FESTIVE15");
+  console.log("  Try coupon codes: WELCOME10, FLAT200, FESTIVE15 · gift card: GIFT-DEMO500");
 }
 
 async function main() {

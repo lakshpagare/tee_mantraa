@@ -46,9 +46,9 @@ export function ImageUploader({ value, onChange, max = 8, single = false }: { va
           <li key={src + i} draggable={!single} onDragStart={() => setDragIdx(i)} onDragOver={(e) => e.preventDefault()} onDrop={() => { if (dragIdx !== null) move(dragIdx, i); setDragIdx(null); }}
             className="group relative h-28 w-24 cursor-grab border border-line bg-neutral-100 active:cursor-grabbing">
             <img src={src} alt={`Upload ${i + 1}`} className="h-full w-full object-cover" />
-            {i === 0 && !single && <span className="absolute left-0 top-0 bg-ink px-1.5 py-0.5 text-[10px] text-white">Cover</span>}
+            {i === 0 && !single && <span className="absolute left-0 top-0 bg-ink px-1.5 py-0.5 text-[10px] text-paper">Cover</span>}
             {!single && <GripVertical className="absolute bottom-1 left-1 h-4 w-4 text-white mix-blend-difference" aria-hidden />}
-            <button type="button" aria-label="Remove image" onClick={() => onChange(value.filter((_, k) => k !== i))} className="absolute right-1 top-1 rounded-full bg-white p-0.5 opacity-0 shadow group-hover:opacity-100 focus:opacity-100"><X className="h-3.5 w-3.5" /></button>
+            <button type="button" aria-label="Remove image" onClick={() => onChange(value.filter((_, k) => k !== i))} className="absolute right-1 top-1 rounded-full bg-paper p-0.5 opacity-0 shadow group-hover:opacity-100 focus:opacity-100"><X className="h-3.5 w-3.5" /></button>
           </li>
         ))}
         {(single ? value.length === 0 : value.length < limit) && (

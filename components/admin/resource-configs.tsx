@@ -27,6 +27,7 @@ const PRODUCT_FIELDS: FieldDef[] = [
   { name: "material", label: "Material", type: "text" },
   { name: "fit", label: "Fit", type: "text" },
   { name: "images", label: "Images (drag to reorder)", type: "images" },
+  { name: "video", label: "Product video URL (optional)", type: "text", full: true, hint: "Direct .mp4/.webm link (e.g. a Cloudinary video URL)" },
   { name: "colors", label: "Colours", type: "colors" },
   { name: "sizes", label: "Sizes", type: "tags", hint: "e.g. S, M, L — or 28, 30, 32 — or One Size" },
   { name: "tags", label: "Tags", type: "tags" },
@@ -40,7 +41,7 @@ export function ProductsAdmin() {
   return (
     <ResourceManager
       resource="products" title="Products" singular="Product"
-      defaults={{ images: [], colors: [], sizes: [], tags: [], gender: "unisex", brand: "VÉRANO", stock: 0, lowStockThreshold: 5, published: true, featured: false, bestSeller: false, newArrival: false }}
+      defaults={{ images: [], colors: [], sizes: [], tags: [], gender: "unisex", brand: "tee-mantraa", stock: 0, lowStockThreshold: 5, published: true, featured: false, bestSeller: false, newArrival: false }}
       fields={PRODUCT_FIELDS}
       columns={[
         { key: "img", label: "", render: (r) => thumb(r.images?.[0]) },
@@ -210,7 +211,7 @@ export function ReviewsAdmin() {
 
 export function NewsletterAdmin() {
   const exportCsv = (items: any[]) => (
-    <button key="csv" className="flex h-10 items-center gap-2 border border-line bg-white px-4 text-sm hover:bg-neutral-50" onClick={() => {
+    <button key="csv" className="flex h-10 items-center gap-2 border border-line bg-paper px-4 text-sm hover:bg-neutral-50" onClick={() => {
       const csv = "email,subscribed,date\n" + items.map((i) => `${i.email},${i.active},${new Date(i.createdAt).toISOString()}`).join("\n");
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));

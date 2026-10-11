@@ -4,6 +4,8 @@ import { Toaster } from "sonner";
 import type { ReactNode } from "react";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { SyncManager } from "@/components/sync-manager";
+import { Analytics } from "@/components/analytics";
+import { PWARegister } from "@/components/pwa-register";
 import { SiteProvider } from "@/hooks/use-site";
 import type { SiteSettingsDTO } from "@/types";
 
@@ -13,8 +15,10 @@ export function Providers({ children, settings }: { children: ReactNode; setting
       <SiteProvider value={settings}>
         <SmoothScroll />
         <SyncManager />
+        <Analytics />
+        <PWARegister />
         {children}
-        <Toaster position="bottom-center" toastOptions={{ className: "!rounded-none !border !border-line !font-sans !text-sm" }} />
+        <Toaster position="bottom-center" offset={84} toastOptions={{ className: "!rounded-none !border !border-line !bg-paper !text-ink !font-sans !text-sm" }} />
       </SiteProvider>
     </SessionProvider>
   );

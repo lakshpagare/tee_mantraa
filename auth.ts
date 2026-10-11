@@ -12,7 +12,6 @@ const REFRESH_MS = 5 * 60 * 1000;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   providers: [
     Credentials({
       credentials: { email: {}, password: {} },
@@ -20,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = loginSchema.safeParse(raw);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
-        if (!rateLimit(`login:${email}`, 8, 5 * 60_000).ok) return null;
+        if (!(await rateLimit(`login:${email}`, 8, 5 * 60_000)).ok) return null;
         await connectDB();
         const user = await User.findOne({ email }).select("+passwordHash");
         if (!user?.passwordHash || user.status === "blocked") return null;

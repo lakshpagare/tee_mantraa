@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { ZodError } from "zod";
 import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/constants";
+import { canAccess, isAdminRole } from "@/lib/constants";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -22,6 +23,7 @@ export function handler<A extends any[]>(fn: (...args: A) => Promise<Response>) 
       if (e instanceof ZodError) return fail(e.issues[0]?.message || "Invalid input", 422);
       if (e?.code === 11000) return fail("A record with the same unique value already exists", 409);
       console.error("[api]", e);
+      Sentry.captureException(e);
       return fail("Something went wrong. Please try again.", 500);
     }
   };
@@ -48,4 +50,11 @@ export async function parseBody<T>(req: Request, schema: { parse: (v: unknown) =
     throw new ApiError(400, "Invalid request body");
   }
   return schema.parse(json);
+}
+
+/** Section-scoped access (STAFF can reach orders/returns/inventory/reviews/customers/dashboard only). */
+export async function requireAccess(section: string) {
+  const user = await requireUser();
+  if (!canAccess(user.role, section)) throw new ApiError(403, "Forbidden");
+  return user;
 }

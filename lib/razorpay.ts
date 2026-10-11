@@ -32,3 +32,14 @@ export function verifyRazorpaySignature(orderId: string, paymentId: string, sign
   const b = Buffer.from(signature || "");
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
+
+/** Refunds a captured payment. Returns the refund id, or null if it could not be issued (caller records a note). */
+export async function refundRazorpayPayment(paymentId: string, amountRupees: number): Promise<string | null> {
+  try {
+    const r: any = await client().payments.refund(paymentId, { amount: Math.round(amountRupees * 100), speed: "normal" });
+    return r?.id || null;
+  } catch (e) {
+    console.error("[razorpay] refund failed", e);
+    return null;
+  }
+}

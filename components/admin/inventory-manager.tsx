@@ -28,7 +28,7 @@ function Row({ p, onSaved }: { p: any; onSaved: () => void }) {
       <td className="px-5 py-3">{p.reserved}</td>
       <td className="px-5 py-3 font-medium">{available}</td>
       <td className="px-5 py-3">{out ? <Badge tone="red">Out of stock</Badge> : low ? <Badge tone="amber">Low stock</Badge> : <Badge tone="green">In stock</Badge>}</td>
-      <td className="px-5 py-3 text-right"><button disabled={!dirty || busy} onClick={save} className="h-9 bg-ink px-4 text-white disabled:opacity-30">{busy ? "…" : "Save"}</button></td>
+      <td className="px-5 py-3 text-right"><button disabled={!dirty || busy} onClick={save} className="h-9 bg-ink px-4 text-paper disabled:opacity-30">{busy ? "…" : "Save"}</button></td>
     </tr>
   );
 }

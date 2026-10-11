@@ -1,8 +1,10 @@
+"use client";
+
 import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const field =
-  "w-full border border-line bg-white px-4 text-sm text-ink placeholder:text-muted/70 transition-colors focus:border-ink focus:outline-none disabled:bg-soft aria-[invalid=true]:border-red-600";
+  "w-full border border-line bg-paper px-4 text-sm text-ink placeholder:text-muted/70 transition-colors focus:border-ink focus:outline-none disabled:bg-soft aria-[invalid=true]:border-red-600";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cn(field, "h-12", className)} {...p} />;
@@ -39,7 +41,7 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
       onClick={() => onChange(!checked)}
       className={cn("relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink", checked ? "bg-ink" : "bg-line")}
     >
-      <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", checked ? "left-[22px]" : "left-0.5")} />
+      <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-paper shadow transition-all", checked ? "left-[22px]" : "left-0.5")} />
     </button>
   );
 }

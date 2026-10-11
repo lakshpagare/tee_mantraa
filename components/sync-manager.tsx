@@ -3,6 +3,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
+import { useCompare } from "@/store/compare";
+import { useRecent } from "@/store/recent";
 import type { CartItem } from "@/types";
 
 /** Rehydrates persisted stores and syncs cart/wishlist with the server for signed-in users. */
@@ -13,6 +15,8 @@ export function SyncManager() {
   useEffect(() => {
     useCart.persist.rehydrate();
     useWishlist.persist.rehydrate();
+    useCompare.persist.rehydrate();
+    useRecent.persist.rehydrate();
   }, []);
 
   // Merge guest data with account data once per sign-in.

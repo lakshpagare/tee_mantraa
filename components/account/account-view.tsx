@@ -10,10 +10,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Input, Select } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WishlistView } from "@/components/account/wishlist-view";
-import { INDIAN_STATES, isAdminRole } from "@/lib/constants";
+import { INDIAN_STATES, isPanelRole } from "@/lib/constants";
 import { cn, formatDate, formatINR } from "@/lib/utils";
 
-const TABS = [["profile", "Profile"], ["orders", "Orders"], ["wishlist", "Wishlist"], ["addresses", "Addresses"], ["settings", "Settings"]] as const;
+const TABS = [["profile", "Profile"], ["orders", "Orders"], ["wishlist", "Wishlist"], ["rewards", "Rewards"], ["addresses", "Addresses"], ["settings", "Settings"]] as const;
 const STATUS_STYLE: Record<string, string> = {
   Delivered: "bg-green-50 text-green-800", Cancelled: "bg-red-50 text-red-800", Returned: "bg-red-50 text-red-800",
   Shipped: "bg-blue-50 text-blue-800", "Out for Delivery": "bg-blue-50 text-blue-800",
@@ -69,6 +69,26 @@ function OrdersTab() {
   );
 }
 
+function RewardsTab() {
+  const [d, setD] = useState<any>(null);
+  useEffect(() => { api("/api/account/rewards").then(setD).catch(() => setD({ points: 0 })); }, []);
+  if (!d) return <Skeleton className="h-48 max-w-xl" />;
+  return (
+    <div className="max-w-2xl space-y-10">
+      <div className="border border-line p-8"><p className="eyebrow mb-2">Reward points</p><p className="font-display text-7xl">{d.points}</p><p className="mt-3 text-sm text-muted">Worth {formatINR(d.points)}. Earn 1 point per ₹100 when an order is delivered; redeem up to 20% of an order at checkout.</p></div>
+      {d.referralCode && (
+        <div className="border border-line p-8">
+          <p className="eyebrow mb-2">Refer a friend</p>
+          <p className="text-sm text-muted">Friends who sign up with your code get 50 points; you get 100 points when their first order is delivered.</p>
+          <p className="mt-4 font-mono text-2xl tracking-widest">{d.referralCode}</p>
+          <div className="mt-4 flex flex-wrap gap-3"><Button variant="outline" size="sm" onClick={() => { navigator.clipboard?.writeText(d.shareUrl); toast.success("Link copied"); }}>Copy invite link</Button><a className="inline-flex h-9 items-center border border-line px-4 text-[11px] uppercase tracking-[0.2em] hover:border-ink" target="_blank" rel="noopener noreferrer" href={`https://wa.me/?text=${encodeURIComponent(`Get 50 reward points on your first order: ${d.shareUrl}`)}`}>Share on WhatsApp</a></div>
+          <p className="mt-4 text-xs text-muted">{d.referred} friend{d.referred === 1 ? "" : "s"} joined with your code.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const blank = { label: "Home", fullName: "", phone: "", line1: "", line2: "", city: "", state: "", pincode: "", isDefault: false };
 
 function AddressesTab() {
@@ -110,7 +130,7 @@ function AddressesTab() {
       <ul className="grid gap-4 md:grid-cols-2">
         {list.map((a) => (
           <li key={a._id} className="border border-line p-5 text-sm">
-            <p className="mb-2 flex items-center gap-2 font-medium">{a.label}{a.isDefault && <span className="bg-ink px-2 py-0.5 text-[10px] uppercase tracking-wider text-white">Default</span>}</p>
+            <p className="mb-2 flex items-center gap-2 font-medium">{a.label}{a.isDefault && <span className="bg-ink px-2 py-0.5 text-[10px] uppercase tracking-wider text-paper">Default</span>}</p>
             <address className="not-italic text-muted">{a.fullName}<br />{a.line1}{a.line2 && `, ${a.line2}`}<br />{a.city}, {a.state} {a.pincode}<br />{a.phone}</address>
             <div className="mt-4 flex gap-5 text-[11px] uppercase tracking-[0.18em]"><button className="link-underline" onClick={() => setForm(a)}>Edit</button><button className="link-underline" onClick={() => del(a._id)}>Delete</button></div>
           </li>
@@ -158,12 +178,13 @@ export function AccountView() {
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => router.push(`/account?tab=${k}`, { scroll: false })}
             className={cn("whitespace-nowrap border-b-2 pb-4 text-[11px] font-medium uppercase tracking-[0.2em]", tab === k ? "border-ink" : "border-transparent text-muted hover:text-ink")}>{l}</button>
         ))}
-        {isAdminRole(session?.user?.role) && <Link href="/admin" className="ml-auto whitespace-nowrap pb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-muted hover:text-ink">Admin →</Link>}
+        {isPanelRole(session?.user?.role) && <Link href="/admin" className="ml-auto whitespace-nowrap pb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-muted hover:text-ink">Admin →</Link>}
       </div>
       <div className="py-10" role="tabpanel">
         {tab === "profile" && <ProfileTab />}
         {tab === "orders" && <OrdersTab />}
         {tab === "wishlist" && <WishlistView />}
+        {tab === "rewards" && <RewardsTab />}
         {tab === "addresses" && <AddressesTab />}
         {tab === "settings" && <SettingsTab />}
       </div>

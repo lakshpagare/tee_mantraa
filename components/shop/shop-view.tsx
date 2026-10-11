@@ -16,13 +16,14 @@ function pageHref(base: string, sp: ShopParams, page: number) {
 }
 
 export async function ShopView({ params, title, eyebrow, description, basePath = "/shop", lockedCategory = false }: { params: ShopParams; title: string; eyebrow?: string; description?: string; basePath?: string; lockedCategory?: boolean }) {
-  const [{ products, total, page, pages, colors }, categories] = await Promise.all([getShopProducts(params), getCategories()]);
+  const [{ products, total, page, pages, colors, didYouMean }, categories] = await Promise.all([getShopProducts(params), getCategories()]);
   return (
     <div className="container-wide pb-10 pt-10 md:pt-16">
       <header className="mb-8 max-w-2xl md:mb-12">
         <p className="eyebrow mb-3">{eyebrow || "Shop"}</p>
         <h1 className="display text-5xl md:text-7xl">{title}</h1>
         {description && <p className="mt-4 text-sm text-muted">{description}</p>}
+        {didYouMean && <p className="mt-4 text-sm">No exact matches for “{params.q}”. Showing results for <Link href={`${basePath}?q=${encodeURIComponent(didYouMean)}`} className="font-medium underline">{didYouMean}</Link>.</p>}
       </header>
       <div className="flex gap-12">
         <Suspense fallback={<div className="hidden w-64 lg:block" />}><ShopSidebar categories={categories} colors={colors} lockedCategory={lockedCategory} /></Suspense>
@@ -43,7 +44,7 @@ export async function ShopView({ params, title, eyebrow, description, basePath =
             <nav aria-label="Pagination" className="mt-14 flex items-center justify-center gap-2">
               {Array.from({ length: pages }).map((_, i) => (
                 <Link key={i} href={pageHref(basePath, params, i + 1)} scroll aria-current={page === i + 1 ? "page" : undefined}
-                  className={`flex h-10 w-10 items-center justify-center border text-sm ${page === i + 1 ? "border-ink bg-ink text-white" : "border-line hover:border-ink"}`}>{i + 1}</Link>
+                  className={`flex h-10 w-10 items-center justify-center border text-sm ${page === i + 1 ? "border-ink bg-ink text-paper" : "border-line hover:border-ink"}`}>{i + 1}</Link>
               ))}
               <span className="sr-only">Page {page} of {pages}, {PAGE_SIZE} per page</span>
             </nav>

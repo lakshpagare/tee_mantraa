@@ -4,6 +4,24 @@ export type Role = (typeof ROLES)[number];
 export const ADMIN_ROLES: Role[] = ["ADMIN", "SUPER_ADMIN"];
 export const isAdminRole = (r?: string | null) => !!r && ADMIN_ROLES.includes(r as Role);
 
+/** Roles that may enter /admin at all. STAFF is limited to STAFF_SECTIONS. */
+export const PANEL_ROLES: Role[] = ["STAFF", "ADMIN", "SUPER_ADMIN"];
+export const isPanelRole = (r?: string | null) => !!r && PANEL_ROLES.includes(r as Role);
+
+export type AdminSection =
+  | "dashboard" | "products" | "categories" | "orders" | "returns" | "customers" | "inventory" | "coupons" | "giftcards"
+  | "offers" | "activity" | "profit" | "reviews" | "homepage" | "collections" | "banners" | "testimonials" | "newsletter" | "journal" | "analytics" | "settings" | "team";
+export const STAFF_SECTIONS: AdminSection[] = ["dashboard", "orders", "returns", "customers", "inventory", "reviews"];
+export function canAccess(role: string | null | undefined, section: string): boolean {
+  if (role === "SUPER_ADMIN") return true;
+  if (role === "ADMIN") return section !== "team";
+  if (role === "STAFF") return (STAFF_SECTIONS as string[]).includes(section);
+  return false;
+}
+
+export const CARRIERS = ["Delhivery", "Blue Dart", "DTDC", "India Post", "Shiprocket", "Other"] as const;
+export const RETURN_REASONS = ["Wrong size / fit", "Not as expected", "Damaged or defective", "Received wrong item", "Changed my mind"] as const;
+
 export const ORDER_STATUSES = [
   "Pending",
   "Confirmed",

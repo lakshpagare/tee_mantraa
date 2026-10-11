@@ -6,26 +6,28 @@ import { adminFetch } from "@/components/admin/api";
 import { Badge, Card, PageHeader, Pagination, statusTone } from "@/components/admin/ui";
 import { Modal } from "@/components/ui/modal";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { ORDER_STATUSES, TIMELINE_STEPS } from "@/lib/constants";
+import { CARRIERS, ORDER_STATUSES, TIMELINE_STEPS } from "@/lib/constants";
 import { cn, formatDate, formatINR } from "@/lib/utils";
+import { orderMessage, whatsappLink } from "@/lib/whatsapp";
 
-const field = "h-10 w-full border border-line bg-white px-3 text-sm focus:border-ink focus:outline-none";
+const field = "h-10 w-full border border-line bg-paper px-3 text-sm focus:border-ink focus:outline-none";
 
 function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => void; onChanged: () => void }) {
   const [o, setO] = useState<any>(null);
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
   const [tracking, setTracking] = useState("");
+  const [carrier, setCarrier] = useState("");
   const [payStatus, setPayStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(() => adminFetch(`/api/admin/orders/${id}`).then((d) => { setO(d.order); setStatus(d.order.status); setTracking(d.order.trackingNumber || ""); setPayStatus(d.order.paymentStatus); }).catch((e) => toast.error(e.message)), [id]);
+  const load = useCallback(() => adminFetch(`/api/admin/orders/${id}`).then((d) => { setO(d.order); setStatus(d.order.status); setTracking(d.order.trackingNumber || ""); setCarrier(d.order.carrier || ""); setPayStatus(d.order.paymentStatus); }).catch((e) => toast.error(e.message)), [id]);
   useEffect(() => { load(); }, [load]);
 
   const save = async () => {
     setBusy(true);
     try {
-      await adminFetch(`/api/admin/orders/${id}`, "PATCH", { status: status !== o.status ? status : undefined, note: note || undefined, trackingNumber: tracking, paymentStatus: payStatus !== o.paymentStatus ? payStatus : undefined });
+      await adminFetch(`/api/admin/orders/${id}`, "PATCH", { status: status !== o.status ? status : undefined, note: note || undefined, trackingNumber: tracking, carrier, paymentStatus: payStatus !== o.paymentStatus ? payStatus : undefined });
       toast.success("Order updated"); setNote(""); await load(); onChanged();
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
@@ -35,7 +37,7 @@ function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => vo
   const cancelled = o.status === "Cancelled" || o.status === "Returned";
   return (
     <div className="space-y-7 p-6 font-sans text-sm">
-      <div className="pr-10"><h2 className="text-xl font-semibold">{o.orderNumber}</h2><p className="text-muted">{formatDate(o.createdAt, true)}</p></div>
+      <div className="pr-10"><h2 className="text-xl font-semibold">{o.orderNumber}</h2><p className="text-muted">{formatDate(o.createdAt, true)}</p><a href={`/order/${o._id}/invoice`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs underline">View invoice</a></div>
 
       <div>
         <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Timeline</p>
@@ -59,10 +61,24 @@ function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => vo
         </ul>
         <dl className="ml-auto mt-3 max-w-xs space-y-1">
           <div className="flex justify-between"><dt className="text-muted">Subtotal</dt><dd>{formatINR(o.subtotal)}</dd></div>
+          {o.offerDiscount > 0 && <div className="flex justify-between"><dt className="text-muted">Offer {o.offerName && `(${o.offerName})`}</dt><dd>−{formatINR(o.offerDiscount)}</dd></div>}
           {o.discount > 0 && <div className="flex justify-between"><dt className="text-muted">Discount {o.couponCode && `(${o.couponCode})`}</dt><dd>−{formatINR(o.discount)}</dd></div>}
+          {o.loyaltyDiscount > 0 && <div className="flex justify-between"><dt className="text-muted">Reward points</dt><dd>−{formatINR(o.loyaltyDiscount)}</dd></div>}
+          {o.giftCardAmount > 0 && <div className="flex justify-between"><dt className="text-muted">Gift card</dt><dd>−{formatINR(o.giftCardAmount)}</dd></div>}
           <div className="flex justify-between"><dt className="text-muted">Shipping</dt><dd>{formatINR(o.shipping)}</dd></div>
           <div className="flex justify-between font-semibold"><dt>Total</dt><dd>{formatINR(o.total)}</dd></div>
         </dl>
+      </div>
+
+      <div className="border-t border-line pt-5">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">Message the customer on WhatsApp</p>
+        <p className="mb-3 text-xs text-muted">Opens WhatsApp (your personal or Business app) with the message ready to send.{o.whatsappOptIn ? " Customer also opted in to automatic updates." : ""}</p>
+        <div className="flex flex-wrap gap-2">
+          {(["placed", "shipped", "delivered", "cancelled"] as const).map((k) => {
+            const link = whatsappLink(o.shippingAddress?.phone, orderMessage(o, k, typeof window !== "undefined" ? window.location.origin : "").text);
+            return link ? <a key={k} href={link} target="_blank" rel="noopener noreferrer" className="border border-line px-3 py-1.5 text-xs capitalize hover:bg-neutral-50">{k === "placed" ? "Order confirmed" : k}</a> : null;
+          })}
+        </div>
       </div>
 
       <div className="space-y-3 border-t border-line pt-5">
@@ -70,11 +86,12 @@ function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => vo
         <div className="grid gap-3 sm:grid-cols-2">
           <label><span className="mb-1 block text-xs">Status</span><select className={field} value={status} onChange={(e) => setStatus(e.target.value)}>{ORDER_STATUSES.map((s) => <option key={s}>{s}</option>)}</select></label>
           <label><span className="mb-1 block text-xs">Payment status</span><select className={field} value={payStatus} onChange={(e) => setPayStatus(e.target.value)}>{["PENDING", "PAID", "FAILED", "REFUNDED"].map((s) => <option key={s}>{s}</option>)}</select></label>
+          <label><span className="mb-1 block text-xs">Courier</span><select className={field} value={carrier} onChange={(e) => setCarrier(e.target.value)}><option value="">—</option>{CARRIERS.map((c) => <option key={c}>{c}</option>)}</select></label>
           <label><span className="mb-1 block text-xs">Tracking number</span><input className={field} value={tracking} onChange={(e) => setTracking(e.target.value)} /></label>
           <label><span className="mb-1 block text-xs">Note (optional)</span><input className={field} value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} /></label>
         </div>
         <p className="text-xs text-muted">Cancelling or returning an order releases its inventory automatically.</p>
-        <div className="flex justify-end gap-3"><button onClick={onClose} className="h-10 border border-line px-5">Close</button><button onClick={save} disabled={busy} className="h-10 bg-ink px-6 text-white disabled:opacity-50">{busy ? "Saving…" : "Save changes"}</button></div>
+        <div className="flex justify-end gap-3"><button onClick={onClose} className="h-10 border border-line px-5">Close</button><button onClick={save} disabled={busy} className="h-10 bg-ink px-6 text-paper disabled:opacity-50">{busy ? "Saving…" : "Save changes"}</button></div>
       </div>
     </div>
   );
@@ -98,7 +115,7 @@ export function OrdersManager() {
 
   return (
     <>
-      <PageHeader title="Orders" description={`${meta.total} orders`} />
+      <PageHeader title="Orders" description={`${meta.total} orders`} actions={<button type="button" onClick={() => window.location.assign(`/api/admin/orders/export${status ? `?status=${encodeURIComponent(status)}` : ""}`)} className="flex h-10 items-center border border-line bg-paper px-4 text-sm hover:bg-neutral-50">Export CSV</button>} />
       <Card>
         <div className="flex flex-wrap gap-3 border-b border-line p-4">
           <div className="relative min-w-[220px] flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted" /><input className={cn(field, "pl-9")} placeholder="Search order #, name, email, phone…" aria-label="Search orders" value={q} onChange={(e) => setQ(e.target.value)} /></div>

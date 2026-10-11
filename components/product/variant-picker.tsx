@@ -6,6 +6,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { WishlistButton } from "@/components/product/wishlist-button";
+import { SizeAdvisor } from "@/components/product/size-advisor";
+import { StockAlertForm } from "@/components/product/stock-alert-form";
+import { track } from "@/components/analytics";
 import { useCart } from "@/store/cart";
 import { useUI } from "@/store/ui";
 import { cn } from "@/lib/utils";
@@ -39,6 +42,7 @@ export function VariantPicker({ product, compact = false, onAdded }: { product: 
   const [color, setColor] = useState(product.colors[0]?.name || "");
   const [qty, setQty] = useState(1);
   const [guide, setGuide] = useState(false);
+  const [advisor, setAdvisor] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const available = Math.max(0, product.stock - product.reserved);
@@ -63,6 +67,7 @@ export function VariantPicker({ product, compact = false, onAdded }: { product: 
       return false;
     }
     if (res.capped) toast.message(`Only ${available} available — quantity adjusted`);
+    track("add_to_cart", { currency: "INR", value: product.price * qty, items: [{ item_id: product.sku, item_name: product.name, price: product.price, quantity: qty }] });
     onAdded?.();
     return true;
   };
@@ -88,12 +93,12 @@ export function VariantPicker({ product, compact = false, onAdded }: { product: 
         <div>
           <div className="mb-3 flex items-center justify-between">
             <p className="text-[11px] uppercase tracking-[0.2em]"><span className="text-muted">Size:</span> {size || "Select"}</p>
-            <button type="button" onClick={() => setGuide(true)} className="link-underline text-[11px] uppercase tracking-[0.2em]">Size guide</button>
+            <span className="flex gap-4"><button type="button" onClick={() => setAdvisor(true)} className="link-underline text-[11px] uppercase tracking-[0.2em]">Find my size</button><button type="button" onClick={() => setGuide(true)} className="link-underline text-[11px] uppercase tracking-[0.2em]">Size guide</button></span>
           </div>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Size">
             {product.sizes.map((s) => (
               <button key={s} type="button" role="radio" aria-checked={size === s} onClick={() => setSize(s)}
-                className={cn("h-11 min-w-[3rem] border px-3 text-xs transition-colors", size === s ? "border-ink bg-ink text-white" : "border-line hover:border-ink")}>
+                className={cn("h-11 min-w-[3rem] border px-3 text-xs transition-colors", size === s ? "border-ink bg-ink text-paper" : "border-line hover:border-ink")}>
                 {s}
               </button>
             ))}
@@ -139,7 +144,9 @@ export function VariantPicker({ product, compact = false, onAdded }: { product: 
           </Button>
         )}
       </div>
+      {soldOut && <StockAlertForm productId={product._id} />}
       <SizeGuideModal open={guide} onClose={() => setGuide(false)} />
+      <SizeAdvisor product={product} open={advisor} onClose={() => setAdvisor(false)} onPick={setSize} />
     </div>
   );
 }

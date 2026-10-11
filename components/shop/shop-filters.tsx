@@ -62,7 +62,7 @@ function FilterBody({ categories, colors, lockedCategory }: { categories: Catego
         <div className="flex gap-2">
           {[["", "All"], ["men", "Men"], ["women", "Women"]].map(([v, l]) => (
             <button key={l} type="button" onClick={() => update({ gender: v || null })} aria-pressed={(sp.get("gender") || "") === v}
-              className={cn("h-9 flex-1 border text-xs", (sp.get("gender") || "") === v ? "border-ink bg-ink text-white" : "border-line hover:border-ink")}>{l}</button>
+              className={cn("h-9 flex-1 border text-xs", (sp.get("gender") || "") === v ? "border-ink bg-ink text-paper" : "border-line hover:border-ink")}>{l}</button>
           ))}
         </div>
       </Group>
@@ -70,7 +70,7 @@ function FilterBody({ categories, colors, lockedCategory }: { categories: Catego
         <div className="flex flex-wrap gap-2">
           {[...SIZES, "28", "30", "32", "34", "36"].map((s) => (
             <button key={s} type="button" aria-pressed={sel("size").includes(s)} onClick={() => toggleIn("size", s)}
-              className={cn("h-9 min-w-10 border px-2 text-xs", sel("size").includes(s) ? "border-ink bg-ink text-white" : "border-line hover:border-ink")}>{s}</button>
+              className={cn("h-9 min-w-10 border px-2 text-xs", sel("size").includes(s) ? "border-ink bg-ink text-paper" : "border-line hover:border-ink")}>{s}</button>
           ))}
         </div>
       </Group>
@@ -124,12 +124,12 @@ export function ShopToolbar({ total, categories, colors, lockedCategory }: { tot
 
   return (
     <>
-      <div className="sticky top-16 z-30 -mx-5 flex items-center justify-between border-y border-line bg-white/95 px-5 py-3 backdrop-blur md:top-[68px] md:-mx-10 md:px-10 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+      <div className="sticky top-16 z-30 -mx-5 flex items-center justify-between border-y border-line bg-paper/95 px-5 py-3 backdrop-blur md:top-[68px] md:-mx-10 md:px-10 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
         <button onClick={() => setOpen(true)} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] lg:hidden"><SlidersHorizontal className="h-4 w-4" />Filters</button>
         <p className="hidden text-sm text-muted lg:block" aria-live="polite">{total} {total === 1 ? "product" : "products"}</p>
         <div className="flex items-center gap-3">
           <label htmlFor="sort" className="hidden text-[11px] uppercase tracking-[0.2em] text-muted sm:block">Sort by</label>
-          <select id="sort" value={sp.get("sort") || "featured"} onChange={(e) => update({ sort: e.target.value === "featured" ? null : e.target.value })} className="h-10 border border-line bg-white px-3 text-sm">
+          <select id="sort" value={sp.get("sort") || "featured"} onChange={(e) => update({ sort: e.target.value === "featured" ? null : e.target.value })} className="h-10 border border-line bg-paper px-3 text-sm">
             {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>

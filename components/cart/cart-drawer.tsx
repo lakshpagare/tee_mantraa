@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/modal";
 import { ButtonLink } from "@/components/ui/button";
 import { FreeShippingBar } from "@/components/cart/free-shipping-bar";
 import { QtyStepper } from "@/components/cart/qty-stepper";
+import { UpsellStrip } from "@/components/cart/upsell-strip";
+import { useOfferEval } from "@/hooks/use-offer-eval";
 import { cartCount, cartSubtotal, useCart } from "@/store/cart";
 import { useUI } from "@/store/ui";
 import { formatINR } from "@/lib/utils";
@@ -15,6 +17,7 @@ export function CartDrawer() {
   const { cartOpen, setCartOpen } = useUI();
   const { items, setQty, remove } = useCart();
   const subtotal = cartSubtotal(items);
+  const offer = useOfferEval(cartOpen);
   const close = () => setCartOpen(false);
 
   return (
@@ -34,7 +37,7 @@ export function CartDrawer() {
         ) : (
           <>
             <div className="border-b border-line px-6 py-4"><FreeShippingBar subtotal={subtotal} /></div>
-            <ul className="flex-1 divide-y divide-line overflow-y-auto px-6" data-lenis-prevent>
+            <ul className="min-h-0 flex-1 divide-y divide-line overflow-y-auto px-6" data-lenis-prevent>
               <AnimatePresence initial={false}>
                 {items.map((i) => (
                   <motion.li key={i.key} layout initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 py-5">
@@ -46,7 +49,7 @@ export function CartDrawer() {
                       </div>
                       <p className="mt-1 text-xs text-muted">{i.color} · {i.size}</p>
                       <div className="mt-auto flex items-center justify-between pt-3">
-                        <QtyStepper value={i.quantity} max={i.maxQty} onChange={(n) => setQty(i.key, n)} />
+                        <QtyStepper value={i.quantity} max={Math.min(10, i.maxQty)} onChange={(n) => setQty(i.key, n)} />
                         <span className="text-sm">{formatINR(i.price * i.quantity)}</span>
                       </div>
                     </div>
@@ -54,8 +57,11 @@ export function CartDrawer() {
                 ))}
               </AnimatePresence>
             </ul>
+            <UpsellStrip compact className="border-t border-line px-6 py-4" />
             <div className="border-t border-line p-6">
-              <div className="mb-1 flex justify-between text-sm"><span>Subtotal</span><span className="font-medium">{formatINR(subtotal)}</span></div>
+              {offer.hint && <p className="mb-3 text-xs text-muted">💡 {offer.hint}</p>}
+              {offer.discount > 0 && <div className="mb-1 flex justify-between text-sm text-green-700"><span>Offer{offer.label ? `: ${offer.label}` : ""}</span><span>−{formatINR(offer.discount)}</span></div>}
+              <div className="mb-1 flex justify-between text-sm"><span>Subtotal</span><span className="font-medium">{formatINR(subtotal - offer.discount)}</span></div>
               <p className="mb-4 text-xs text-muted">Shipping and taxes calculated at checkout.</p>
               <div className="grid grid-cols-2 gap-3">
                 <ButtonLink href="/cart" variant="outline" onClick={close}>View cart</ButtonLink>

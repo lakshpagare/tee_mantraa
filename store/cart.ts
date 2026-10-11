@@ -45,7 +45,7 @@ export const useCart = create<CartState>()(
       setCoupon: (couponCode) => set({ couponCode }),
     }),
     {
-      name: "verano-cart",
+      name: "tee-mantraa-cart",
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
       partialize: (s) => ({ items: s.items, couponCode: s.couponCode }),

@@ -8,7 +8,7 @@ import { sendMail } from "@/lib/mail";
 import { appUrl } from "@/lib/utils";
 
 export const POST = handler(async (req: Request) => {
-  if (!rateLimit(`forgot:${clientIp(req)}`, 5, 60 * 60_000).ok) throw new ApiError(429, "Too many requests. Try again later.");
+  if (!(await rateLimit(`forgot:${clientIp(req)}`, 5, 60 * 60_000)).ok) throw new ApiError(429, "Too many requests. Try again later.");
   const { email } = await parseBody(req, forgotSchema);
   await connectDB();
   const user = await User.findOne({ email });
