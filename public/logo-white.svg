@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="72" viewBox="0 0 360 72" role="img" aria-label="tee-mantraa">
-<g transform="translate(6 12) scale(1)" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="22.5"/><path d="M16.5 14.5 L11 18.5 L13.8 24.2 L18 22 V34 H30 V22 L34.2 24.2 L37 18.5 L31.5 14.5 Q24 19.5 16.5 14.5Z"/><circle cx="24" cy="27" r="1.4" fill="#ffffff" stroke="none"/></g>
-<text x="66" y="47" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="40" font-weight="500" letter-spacing="0.8" fill="#ffffff">tee-mantraa</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="84" viewBox="0 0 420 84" role="img" aria-label="tee-mantraa">
+<g transform="translate(8 14) scale(1.17)" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="22.5"/><path d="M22 11 V31 Q22 35.5 27 35.5"/><path d="M15 19 H29"/><circle cx="33" cy="16" r="1.7" fill="#ffffff" stroke="none"/></g>
+<text x="76" y="54" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="46" fill="#ffffff"><tspan font-style="italic" font-weight="400">tee</tspan><tspan font-weight="300" opacity=".5">-</tspan><tspan font-weight="600">mantraa</tspan></text>
 </svg>

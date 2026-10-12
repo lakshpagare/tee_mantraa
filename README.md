@@ -66,6 +66,19 @@ Gift cards are issued by admins (Admin → Gift cards) — there is no online gi
 Variant-wise (size × colour) stock · Shiprocket/Delhivery **API** integration (tracking links are supported) ·
 multi-language (Marathi/Hindi) · multi-currency · 360° product view · online gift-card purchase · dark mode in the admin panel.
 
+## Brand & logo
+
+The store name is **tee-mantraa** (editable any time in Admin → Settings → Brand name). The logo is built from the name: a lowercase **t** in a fine circle with a small dot (a nod to the *bindu* of a mantra), and a wordmark where *tee* is italic and **mantraa** is upright.
+
+| File | Use |
+|---|---|
+| `components/logo.tsx` | The logo used in the header, footer, mobile menu and admin (follows light/dark theme) |
+| `public/logo.svg`, `public/logo-white.svg`, `public/logo-mark.svg` | Vector logos (the wordmark text uses the Cormorant Garamond font if installed, otherwise Georgia) |
+| `public/brand/tee-mantraa-logo-black.png`, `…-white.png` | Transparent PNG lockups for documents, packaging mock-ups, videos |
+| `public/brand/tee-mantraa-profile.png`, `…-profile-light.png` | 1024×1024 profile pictures for WhatsApp Business, Instagram, Facebook |
+| `app/icon.svg`, `public/icons/*`, `public/apple-touch-icon.png` | Browser tab icon, PWA / home-screen icons |
+| `app/opengraph-image.tsx` | Social share preview card |
+
 ## Features
 
 **Storefront** — cinematic hero (clip-path reveal, parallax), marquee, editorial category cards (swipe on mobile), product
