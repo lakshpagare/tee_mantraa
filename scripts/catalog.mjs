@@ -23,6 +23,7 @@ export const COLLECTIONS = [
   { name: "Essentials", slug: "essentials", description: "The foundations of a considered wardrobe.", tone: ["#EFE8D8", "#CDBF9F"] },
   { name: "Streetwear", slug: "streetwear", description: "Oversized fits and heavyweight fabrics.", tone: ["#D3D3D0", "#9B9B96"] },
   { name: "Premium Collection", slug: "premium-collection", description: "Our finest fabrics and sharpest tailoring.", tone: ["#D8D0C4", "#9E9382"] },
+  { name: "Gift Collection", slug: "gift-collection", description: "Thoughtful, ready-to-give pieces.", tone: ["#EFE3C8", "#C8A96A"] },
   { name: "Summer Edit", slug: "summer-edit", description: "Breathable linens and light layers.", tone: ["#F0E9DA", "#D9C9A6"] },
 ];
 
@@ -35,20 +36,20 @@ const P = (name, category, gender, price, compareAt, type, colors, sizes, materi
   ({ name, slug: slugify(name), category, gender, price, compareAt, type, colors, sizes, material, fit, short, flags, collections });
 
 export const PRODUCTS = [
-  P("Linen Resort Shirt", "shirts", "men", 1499, null, "shirt", ["Ecru", "Olive", "Sky"], TOPS, "100% European linen", "Relaxed fit", "A breathable camp-collar shirt in washed linen.", "NB", ["summer-edit", "weekend-edit", "new-season"]),
+  P("Linen Resort Shirt", "shirts", "men", 1499, null, "shirt", ["Ecru", "Olive", "Sky"], TOPS, "100% European linen", "Relaxed fit", "A breathable camp-collar shirt in washed linen.", "NB", ["summer-edit", "weekend-edit", "new-season", "gift-collection"]),
   P("Oxford Button-Down", "shirts", "men", 1799, null, "shirt", ["Sky", "White", "Navy"], TOPS, "100% cotton oxford", "Regular fit", "The everyday oxford, softened with a garment wash.", "B", ["essentials"]),
   P("Checked Flannel Overshirt", "shirts", "unisex", 2199, 2799, "shirt", ["Rust", "Olive", "Navy"], TOPS, "Brushed cotton flannel", "Relaxed fit", "A heavyweight flannel built for layering.", "B", ["weekend-edit", "streetwear"]),
   P("Mandarin Collar Shirt", "shirts", "men", 1399, null, "shirt", ["Ecru", "Black", "Sand"], TOPS, "Cotton-linen blend", "Slim fit", "Clean lines, no collar fuss.", "N", ["new-season", "premium-collection"]),
   P("Striped Cotton Shirt", "shirts", "women", 1299, 1599, "shirt", ["Sky", "Cream", "Navy"], TOPS, "Poplin cotton", "Relaxed fit", "A crisp, easy shirt with a fine stripe.", "", ["summer-edit"]),
-  P("Essential Crew Tee", "t-shirts", "unisex", 799, null, "tee", ["White", "Black", "Stone"], TOPS, "220 GSM combed cotton", "Regular fit", "The tee you reach for every day.", "BN", ["essentials", "new-season"]),
+  P("Essential Crew Tee", "t-shirts", "unisex", 799, null, "tee", ["White", "Black", "Stone"], TOPS, "220 GSM combed cotton", "Regular fit", "The tee you reach for every day.", "BN", ["essentials", "new-season", "gift-collection"]),
   P("Heavyweight Boxy Tee", "t-shirts", "unisex", 999, null, "tee", ["Ecru", "Charcoal", "Olive"], TOPS, "280 GSM heavyweight cotton", "Boxy fit", "Substantial cotton with a cropped, boxy drape.", "B", ["streetwear", "essentials"]),
   P("Pocket Tee", "t-shirts", "men", 899, null, "tee", ["Sand", "Navy", "White"], TOPS, "Slub cotton jersey", "Regular fit", "A relaxed tee with a single chest pocket.", "", ["weekend-edit"]),
   P("Oversized Graphic Tee", "t-shirts", "unisex", 1199, 1499, "tee", ["Black", "Ecru", "Rust"], TOPS, "240 GSM cotton", "Oversized fit", "Quiet back graphic, loud silhouette.", "N", ["streetwear", "new-season"]),
   P("Ribbed Henley Tee", "t-shirts", "women", 1099, null, "tee", ["Cream", "Black", "Sand"], TOPS, "Ribbed cotton-modal", "Slim fit", "A soft ribbed henley with a three-button placket.", "", ["essentials"]),
-  P("Core Pullover Hoodie", "hoodies", "unisex", 2499, null, "hoodie", ["Charcoal", "Ecru", "Navy"], TOPS, "420 GSM brushed fleece", "Regular fit", "Our everyday hoodie in dense, brushed fleece.", "B", ["essentials", "weekend-edit"]),
+  P("Core Pullover Hoodie", "hoodies", "unisex", 2499, null, "hoodie", ["Charcoal", "Ecru", "Navy"], TOPS, "420 GSM brushed fleece", "Regular fit", "Our everyday hoodie in dense, brushed fleece.", "B", ["essentials", "weekend-edit", "gift-collection"]),
   P("Zip-Up Hoodie", "hoodies", "men", 2799, 3499, "hoodie", ["Black", "Stone", "Olive"], TOPS, "400 GSM cotton fleece", "Regular fit", "A full-zip hoodie with a clean, structured hood.", "B", ["streetwear"]),
   P("Oversized Washed Hoodie", "hoodies", "unisex", 2999, null, "hoodie", ["Washed Black", "Sand", "Rust"], TOPS, "Garment-dyed fleece", "Oversized fit", "Vintage-washed and generously cut.", "N", ["streetwear", "new-season", "premium-collection"]),
-  P("Cropped Hoodie", "hoodies", "women", 2299, null, "hoodie", ["Cream", "Black", "Sky"], TOPS, "Brushed cotton fleece", "Cropped fit", "A cropped, boxy hoodie that sits at the waist.", "N", ["new-season"]),
+  P("Cropped Hoodie", "hoodies", "women", 2299, null, "hoodie", ["Cream", "Black", "Sky"], TOPS, "Brushed cotton fleece", "Cropped fit", "A cropped, boxy hoodie that sits at the waist.", "N", ["new-season", "gift-collection"]),
   P("Straight Fit Jeans", "jeans", "men", 2499, null, "jeans", ["Indigo", "Washed Black", "Light Wash"], WAIST, "12oz stretch denim", "Straight fit", "A true straight leg in comfortable stretch denim.", "B", ["essentials"]),
   P("Slim Tapered Jeans", "jeans", "men", 2299, 2999, "jeans", ["Indigo", "Black", "Light Wash"], WAIST, "11oz stretch denim", "Slim tapered", "Slim through the thigh, tapered at the ankle.", "", ["weekend-edit"]),
   P("Wide-Leg Jeans", "jeans", "women", 2799, null, "jeans", ["Light Wash", "Indigo", "Washed Black"], WAIST, "13oz rigid denim", "Wide leg", "High-rise, wide-leg denim with weight and drape.", "BN", ["new-season", "streetwear"]),
@@ -61,8 +62,8 @@ export const PRODUCTS = [
   P("Tailored Wool-Blend Trousers", "trousers", "men", 2999, null, "trousers", ["Charcoal", "Navy", "Stone"], WAIST, "Wool-blend suiting", "Tailored fit", "Sharp, drapey trousers for work and beyond.", "N", ["premium-collection"]),
   P("Drawstring Linen Trousers", "trousers", "women", 1799, 2299, "trousers", ["Ecru", "Olive", "Sky"], WAIST, "100% linen", "Relaxed fit", "Breezy linen trousers with an easy drawstring waist.", "B", ["summer-edit"]),
   P("Cargo Trousers", "trousers", "unisex", 2199, null, "trousers", ["Olive", "Black", "Sand"], WAIST, "Ripstop cotton", "Relaxed fit", "Roomy cargos with articulated knees.", "", ["streetwear"]),
-  P("Leather Belt", "accessories", "unisex", 999, null, "bag", ["Black", "Tan"], ["S", "M", "L"], "Full-grain leather", "Standard", "A full-grain leather belt with a brushed buckle.", "", ["essentials"]),
-  P("Canvas Tote", "accessories", "unisex", 1299, null, "bag", ["Ecru", "Black"], ONE, "Heavy cotton canvas", "One size", "A roomy everyday tote with an inner pocket.", "BN", ["weekend-edit", "summer-edit"]),
-  P("Wool Beanie", "accessories", "unisex", 799, null, "bag", ["Charcoal", "Cream", "Rust"], ONE, "Merino wool blend", "One size", "A soft ribbed beanie in a merino blend.", "", ["streetwear"]),
-  P("Minimal Cap", "accessories", "unisex", 899, 1199, "bag", ["Navy", "Stone", "Black"], ONE, "Washed cotton twill", "One size", "A six-panel cap with an adjustable strap.", "", ["weekend-edit"]),
+  P("Leather Belt", "accessories", "unisex", 999, null, "bag", ["Black", "Tan"], ["S", "M", "L"], "Full-grain leather", "Standard", "A full-grain leather belt with a brushed buckle.", "", ["essentials", "gift-collection"]),
+  P("Canvas Tote", "accessories", "unisex", 1299, null, "bag", ["Ecru", "Black"], ONE, "Heavy cotton canvas", "One size", "A roomy everyday tote with an inner pocket.", "BN", ["weekend-edit", "summer-edit", "gift-collection"]),
+  P("Wool Beanie", "accessories", "unisex", 799, null, "bag", ["Charcoal", "Cream", "Rust"], ONE, "Merino wool blend", "One size", "A soft ribbed beanie in a merino blend.", "", ["streetwear", "gift-collection"]),
+  P("Minimal Cap", "accessories", "unisex", 899, 1199, "bag", ["Navy", "Stone", "Black"], ONE, "Washed cotton twill", "One size", "A six-panel cap with an adjustable strap.", "", ["weekend-edit", "gift-collection"]),
 ];

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "tee-mantraa",
     short_name: "tee-mantraa",
-    description: "Premium everyday clothing. Defined by Style.",
+    description: "Premium everyday clothing. Define Your Style.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

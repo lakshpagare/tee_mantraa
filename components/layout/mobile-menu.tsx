@@ -15,6 +15,7 @@ const MAIN = [
   { href: "/shop?gender=men", label: "Men" },
   { href: "/shop?gender=women", label: "Women" },
   { href: "/collections", label: "Collections" },
+  { href: "/gifts", label: "Gift Collection" },
   { href: "/shop?sale=1", label: "Sale" },
 ];
 

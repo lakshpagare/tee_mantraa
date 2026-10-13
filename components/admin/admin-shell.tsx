@@ -59,7 +59,7 @@ export function AdminShell({ children, user, brand, role }: { children: React.Re
   return (
     <div data-admin className="min-h-screen bg-[#fafafa] font-sans text-sm text-ink">
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-line bg-paper lg:flex">
-        <div className="border-b border-line px-6 py-5"><Logo name={brand} size="sm" /><p className="text-[10px] uppercase tracking-[0.25em] text-muted">Admin</p></div>
+        <div className="border-b border-line px-6 py-5"><Logo name={brand} size="sm" tone="deep" /><p className="text-[10px] uppercase tracking-[0.25em] text-muted">Admin</p></div>
         {nav}
         <div className="border-t border-line p-4">
           <p className="truncate text-xs font-medium">{user.name}</p><p className="truncate text-xs text-muted">{user.email} · {role.replace("_", " ")}</p>
@@ -68,7 +68,7 @@ export function AdminShell({ children, user, brand, role }: { children: React.Re
       </aside>
 
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-paper px-4 lg:hidden">
-        <span className="flex items-center gap-2"><Logo name={brand} size="sm" /><span className="text-[10px] tracking-widest text-muted">ADMIN</span></span>
+        <span className="flex items-center gap-2"><Logo name={brand} size="sm" tone="deep" /><span className="text-[10px] tracking-widest text-muted">ADMIN</span></span>
         <button aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen(!open)} className="p-2">{open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
       </header>
       {open && <div className="fixed inset-0 top-14 z-20 flex flex-col bg-paper lg:hidden">{nav}</div>}

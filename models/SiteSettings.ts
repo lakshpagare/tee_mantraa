@@ -4,7 +4,7 @@ const SiteSettingsSchema = new Schema(
   {
     key: { type: String, default: "site", unique: true },
     brandName: { type: String, default: "tee-mantraa" },
-    tagline: { type: String, default: "Defined by Style." },
+    tagline: { type: String, default: "Define Your Style." },
     announcement: { type: String, default: "FREE SHIPPING ON ORDERS ABOVE ₹1999" },
     freeShippingThreshold: { type: Number, default: 1999 },
     shippingFee: { type: Number, default: 99 },

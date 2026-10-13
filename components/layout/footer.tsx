@@ -6,7 +6,7 @@ import type { SiteSettingsDTO } from "@/types";
 import { Logo } from "@/components/logo";
 
 const COLS = [
-  { title: "Shop", links: [["New Arrivals", "/shop?new=1"], ["Men", "/shop?gender=men"], ["Women", "/shop?gender=women"], ["Shirts", "/shop?category=shirts"], ["T-Shirts", "/shop?category=t-shirts"], ["Hoodies", "/shop?category=hoodies"], ["Jeans", "/shop?category=jeans"], ["Sale", "/shop?sale=1"]] },
+  { title: "Shop", links: [["New Arrivals", "/shop?new=1"], ["Men", "/shop?gender=men"], ["Women", "/shop?gender=women"], ["Shirts", "/shop?category=shirts"], ["T-Shirts", "/shop?category=t-shirts"], ["Hoodies", "/shop?category=hoodies"], ["Jeans", "/shop?category=jeans"], ["Gift Collection", "/gifts"], ["Sale", "/shop?sale=1"]] },
   { title: "Help", links: [["Contact", "/contact"], ["Shipping", "/shipping"], ["Returns", "/returns"], ["FAQ", "/faq"], ["Size Guide", "/size-guide"], ["Compare", "/compare"]] },
   { title: "Company", links: [["About", "/about"], ["Our Story", "/our-story"], ["Careers", "/careers"], ["Journal", "/journal"], ["Lookbook", "/lookbook"]] },
   { title: "Legal", links: [["Privacy Policy", "/privacy-policy"], ["Terms", "/terms"], ["Refund Policy", "/refund-policy"]] },

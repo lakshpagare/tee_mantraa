@@ -35,6 +35,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       <div className="border border-line bg-paper p-8 md:p-12 print:border-0 print:p-0">
         <div className="flex flex-wrap items-start justify-between gap-6 border-b border-line pb-6">
           <div>
+            <img src="/brand/crest-deep.png" alt="" className="mb-3 h-14 w-auto" width={721} height={560} />
             <p className="font-display text-3xl">{seller}</p>
             {s.businessAddress && <p className="mt-1 max-w-xs whitespace-pre-line text-muted">{s.businessAddress}</p>}
             {s.gstin && <p className="mt-1">GSTIN: <strong>{s.gstin}</strong></p>}

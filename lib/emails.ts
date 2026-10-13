@@ -8,7 +8,7 @@ const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "
 async function layout(title: string, body: string) {
   const s = await getSettings();
   return `<div style="font-family:Georgia,'Times New Roman',serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#111">
-  <p style="font-size:22px;letter-spacing:.02em;margin:0 0 24px">${esc(s.brandName)}</p>
+  <img src="${appUrl()}/brand/wordmark-deep.png" alt="${esc(s.brandName)}" height="26" style="height:26px;width:auto;margin:0 0 24px;display:block"/>
   <h1 style="font-weight:400;font-size:28px;margin:0 0 16px">${esc(title)}</h1>${body}
   <hr style="border:none;border-top:1px solid #e8e8e8;margin:32px 0 16px"/>
   <p style="font-size:12px;color:#777;font-family:Arial,sans-serif">${esc(s.brandName)} · ${esc(s.contactEmail)}</p></div>`;

@@ -87,7 +87,7 @@ async function seedDemo() {
   ]);
 
   // ---- settings & homepage CMS ----
-  await SiteSettings.findOneAndUpdate({ key: "site" }, { key: "site", brandName: "tee-mantraa", tagline: "Defined by Style.", contactEmail: "hello@tee-mantraa.example" }, { upsert: true });
+  await SiteSettings.findOneAndUpdate({ key: "site" }, { key: "site", brandName: "tee-mantraa", tagline: "Define Your Style.", contactEmail: "hello@tee-mantraa.example" }, { upsert: true });
   await HomepageSection.insertMany(Object.entries(HOMEPAGE_DEFAULTS).map(([key, v]) => ({ key, enabled: v.enabled, data: v.data })));
 
   // ---- categories ----
@@ -107,7 +107,7 @@ async function seedDemo() {
       images: [`/images/products/${p.slug}-1.svg`, `/images/products/${p.slug}-2.svg`],
       colors: p.colors.map((n: string) => ({ name: n, hex: COLOR_HEX[n] })), sizes: p.sizes,
       stock, lowStockThreshold: 5, material: p.material, fit: p.fit, gender: p.gender,
-      tags: [p.category, p.type, p.gender, ...p.name.toLowerCase().split(" ")],
+      tags: [p.category, p.type, p.gender, ...p.name.toLowerCase().split(" "), ...(p.collections.includes("gift-collection") ? ["gift", "gifting"] : [])],
       featured: p.flags.includes("B"), bestSeller: p.flags.includes("B"), newArrival: p.flags.includes("N"), published: true,
       sold: 0,
     };

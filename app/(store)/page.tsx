@@ -12,6 +12,8 @@ import { NewsletterSection } from "@/components/home/newsletter-section";
 import { getInstagramPosts } from "@/lib/instagram";
 import { getActiveBanner, getBestSellers, getCategories, getHomepage, getNewArrivals, getTestimonials } from "@/lib/data";
 
+const SHOW_MARQUEE = false;
+
 export default async function HomePage() {
   const [home, categories, testimonials, banner, instagram] = await Promise.all([getHomepage(), getCategories(), getTestimonials(), getActiveBanner(), getInstagramPosts(8)]);
   const [newArrivals, bestSellers] = await Promise.all([
@@ -23,7 +25,8 @@ export default async function HomePage() {
   return (
     <>
       {on("hero") && <Hero data={home.hero.data as any} />}
-      {on("marquee") && <Marquee items={home.marquee.data.items || []} />}
+      {/* Scrolling statement band is switched off for now. To bring it back set SHOW_MARQUEE to true. */}
+      {SHOW_MARQUEE && on("marquee") && <Marquee items={home.marquee.data.items || []} />}
       {on("categories") && <CategorySection data={home.categories.data} categories={categories} />}
       {on("newArrivals") && <ProductSection data={home.newArrivals.data} products={newArrivals} href="/shop?new=1" />}
       {on("editorial") && <EditorialSection data={home.editorial.data as any} />}

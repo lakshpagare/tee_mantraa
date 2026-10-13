@@ -7,7 +7,7 @@ import { Img } from "@/components/ui/img";
 import { Price } from "@/components/ui/price";
 import { Stars } from "@/components/ui/stars";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categoryName } from "@/components/product/product-card";
+import { categoryName } from "@/lib/product-utils";
 import { useCompare } from "@/store/compare";
 import type { ProductDTO } from "@/types";
 

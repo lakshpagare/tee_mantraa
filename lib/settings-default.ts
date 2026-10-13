@@ -2,7 +2,7 @@ import type { SiteSettingsDTO } from "@/types";
 
 export const DEFAULT_SETTINGS: SiteSettingsDTO = {
   brandName: "tee-mantraa",
-  tagline: "Defined by Style.",
+  tagline: "Define Your Style.",
   announcement: "FREE SHIPPING ON ORDERS ABOVE ₹1999",
   freeShippingThreshold: 1999,
   shippingFee: 99,

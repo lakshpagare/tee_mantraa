@@ -19,6 +19,7 @@ export const NAV_LINKS = [
   { href: "/shop?gender=men", label: "Men" },
   { href: "/shop?gender=women", label: "Women" },
   { href: "/collections", label: "Collections" },
+  { href: "/gifts", label: "Gift Collection" },
   { href: "/shop?sale=1", label: "Sale" },
 ];
 
@@ -65,10 +66,10 @@ export function Navbar() {
 
         <nav aria-label="Main" className="container-wide flex h-16 items-center justify-between md:h-[68px]">
           <Link href="/" aria-label={`${site.brandName} home`} className="flex items-center">
-            <Logo name={site.brandName} />
+            <Logo name={site.brandName} tone={transparent ? "bright" : "auto"} />
           </Link>
 
-          <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 lg:flex xl:gap-10">
+          <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 xl:flex 2xl:gap-9">
             {NAV_LINKS.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="link-underline text-[10px] font-medium uppercase tracking-[0.18em] xl:text-[11px] xl:tracking-[0.22em]">{l.label}</Link>
@@ -76,13 +77,14 @@ export function Navbar() {
             ))}
           </ul>
 
+          {/* Order: Search · Wishlist · Cart · Profile · Mode (· Menu on smaller screens) */}
           <div className="flex items-center gap-0.5">
-            <ThemeToggle className={cn(iconBtn, "hidden sm:flex")} />
             <button className={iconBtn} aria-label="Search" onClick={() => setSearchOpen(true)}><Search className="h-[18px] w-[18px]" strokeWidth={1.5} /></button>
-            <Link href={status === "authenticated" ? "/account" : "/login"} className={cn(iconBtn, "hidden lg:flex")} aria-label="Account"><User className="h-[18px] w-[18px]" strokeWidth={1.5} /></Link>
             <Link href="/wishlist" className={cn(iconBtn, "hidden lg:flex")} aria-label={`Wishlist, ${wish} items`}><Heart className="h-[18px] w-[18px]" strokeWidth={1.5} /><Badge n={wish} /></Link>
             <button className={iconBtn} aria-label={`Open cart, ${count} items`} onClick={() => setCartOpen(true)}><ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} /><Badge n={count} /></button>
-            <button className={cn(iconBtn, "lg:hidden")} aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu className="h-5 w-5" strokeWidth={1.5} /></button>
+            <Link href={status === "authenticated" ? "/account" : "/login"} className={cn(iconBtn, "hidden lg:flex")} aria-label="Profile"><User className="h-[18px] w-[18px]" strokeWidth={1.5} /></Link>
+            <ThemeToggle className={cn(iconBtn, "hidden lg:flex")} />
+            <button className={cn(iconBtn, "xl:hidden")} aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu className="h-5 w-5" strokeWidth={1.5} /></button>
           </div>
         </nav>
       </header>

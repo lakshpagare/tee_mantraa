@@ -17,7 +17,7 @@ export const HOMEPAGE_DEFAULTS: Record<SectionKey, { enabled: boolean; data: Rec
       secondaryHref: "/shop?gender=women",
     },
   },
-  marquee: { enabled: true, data: { items: ["CRAFTED FOR EVERYDAY", "DESIGNED FOR YOU", "DEFINED BY STYLE"] } },
+  marquee: { enabled: false, data: { items: ["CRAFTED FOR EVERYDAY", "DESIGNED FOR YOU", "DEFINED BY STYLE"] } },
   categories: { enabled: true, data: { eyebrow: "Explore", heading: "Shop by Category" } },
   newArrivals: { enabled: true, data: { eyebrow: "Just Landed", heading: "New Arrivals", productIds: [] } },
   editorial: {

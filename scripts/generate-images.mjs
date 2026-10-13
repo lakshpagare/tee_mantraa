@@ -54,7 +54,7 @@ write("products/placeholder.svg", svg(800, 1000, { tones: LIGHT[0], label: "tee-
 CATEGORIES.forEach((c, i) => write(`categories/${c.slug}.svg`, svg(800, 1000, { tones: c.tone, garment: ["#2B2B2B", "#6B705C", "#3A4A6B", "#7A5C3E"][i % 4], type: c.type, variant: i % 2, label: c.name, scale: 0.7 })));
 
 // Collections (4:3)
-COLLECTIONS.forEach((c, i) => write(`collections/${c.slug}.svg`, svg(1200, 900, { tones: c.tone, garment: ["#2B2B2B", "#6B705C", "#3A4A6B"][i % 3], type: ["shirt", "tee", "hoodie", "jacket", "trousers", "shirt"][i], variant: i % 2, label: c.name, scale: 0.75 })));
+COLLECTIONS.forEach((c, i) => write(`collections/${c.slug}.svg`, svg(1200, 900, { tones: c.tone, garment: ["#2B2B2B", "#6B705C", "#3A4A6B"][i % 3], type: ["shirt", "tee", "hoodie", "jacket", "trousers", "bag", "shirt"][i], variant: i % 2, label: c.name, scale: 0.75 })));
 
 // Hero, editorial, banners, social
 write("hero/hero.svg", svg(2000, 1250, { tones: ["#CFC8B8", "#8E8574"], garment: "#1b1b1b", type: "jacket", variant: 1, label: "The Art of Everyday", scale: 0.78 }));

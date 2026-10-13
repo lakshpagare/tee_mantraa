@@ -8,9 +8,9 @@ import { WishlistButton } from "@/components/product/wishlist-button";
 import { useUI } from "@/store/ui";
 import { useFlashPrice } from "@/components/flash-sale";
 import { discountPct } from "@/lib/utils";
+import { categoryName } from "@/lib/product-utils";
 import type { ProductDTO } from "@/types";
 
-export const categoryName = (p: ProductDTO) => (typeof p.category === "object" && p.category ? p.category.name : "");
 
 export function ProductCard({ product, showRating = false, priority = false }: { product: ProductDTO; showRating?: boolean; priority?: boolean }) {
   const openQuickView = useUI((s) => s.openQuickView);

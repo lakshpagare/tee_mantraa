@@ -32,6 +32,7 @@ Redis (Upstash) rate limiting · cached homepage/catalog reads · Playwright smo
 | Analytics | `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_META_PIXEL_ID` |
 | Redis rate limiting | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` |
 | Instagram feed | `INSTAGRAM_ACCESS_TOKEN` (long-lived); otherwise the CMS images are used |
+| Gift Collection page | `/gifts` is built in. It shows the collection with slug `gift-collection` (Admin → Collections), else products tagged `gift`, else best sellers. |
 | Roles | `npm run seed -- --admin-only` makes your admin a **SUPER_ADMIN**; then use Admin → Team & roles |
 | E2E tests | `npm run test:e2e:install` once, then `npm run test:e2e` (needs a seeded database) |
 
@@ -68,16 +69,19 @@ multi-language (Marathi/Hindi) · multi-currency · 360° product view · online
 
 ## Brand & logo
 
-The store name is **tee-mantraa** (editable any time in Admin → Settings → Brand name). The logo is built from the name: a lowercase **t** in a fine circle with a small dot (a nod to the *bindu* of a mantra), and a wordmark where *tee* is italic and **mantraa** is upright.
+The store name is **tee-mantraa** (editable any time in Admin → Settings → Brand name) and the tagline is **Define Your Style.** (Admin → Settings → Tagline).
+The logo is the gold crest + wordmark artwork supplied by the brand. It is cut out with a transparent background so it works on light and dark pages:
 
 | File | Use |
 |---|---|
-| `components/logo.tsx` | The logo used in the header, footer, mobile menu and admin (follows light/dark theme) |
-| `public/logo.svg`, `public/logo-white.svg`, `public/logo-mark.svg` | Vector logos (the wordmark text uses the Cormorant Garamond font if installed, otherwise Georgia) |
-| `public/brand/tee-mantraa-logo-black.png`, `…-white.png` | Transparent PNG lockups for documents, packaging mock-ups, videos |
-| `public/brand/tee-mantraa-profile.png`, `…-profile-light.png` | 1024×1024 profile pictures for WhatsApp Business, Instagram, Facebook |
-| `app/icon.svg`, `public/icons/*`, `public/apple-touch-icon.png` | Browser tab icon, PWA / home-screen icons |
-| `app/opengraph-image.tsx` | Social share preview card |
+| `components/logo.tsx` | `<Logo />` (crest + wordmark) and `<CrestImage />`. `tone="auto"` follows light/dark mode; `"bright"` for photos/dark heroes; `"deep"` for always-light areas (admin) |
+| `public/brand/crest-gold.png`, `wordmark-gold.png`, `lockup-gold.png` | Bright gold, transparent — for dark backgrounds |
+| `public/brand/crest-deep.png`, `wordmark-deep.png`, `lockup-deep.png` | Deep gold, transparent — for white / light backgrounds, emails, invoices |
+| `public/brand/tee-mantraa-logo-original.png` | The original artwork (black fabric background) |
+| `public/brand/tee-mantraa-profile.png` | Square profile picture for WhatsApp Business / Instagram / Facebook |
+| `public/brand/logo-art.jpg` | Web-sized artwork used on the sign-in page |
+| `app/icon.png`, `public/icons/*`, `public/apple-touch-icon.png` | Browser tab icon and PWA / home-screen icons (crest on black) |
+| `app/opengraph-image.png` | Link-preview card for WhatsApp / Facebook / X |
 
 ## Features
 

@@ -4,11 +4,8 @@ import { Img } from "@/components/ui/img";
 export function AuthShell({ title, subtitle, children, footer }: { title: string; subtitle?: string; children: React.ReactNode; footer?: React.ReactNode }) {
   return (
     <div className="grid min-h-[80vh] lg:grid-cols-2">
-      <div className="relative hidden lg:block">
-        <Img src="/images/editorial/story.svg" alt="" sizes="50vw" className="absolute inset-0 h-full w-full" />
-        <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/50 to-transparent p-14 text-white">
-          <p className="display max-w-md text-6xl">Defined by <em className="font-light">Style.</em></p>
-        </div>
+      <div className="relative hidden bg-[#0a0a0a] lg:block">
+        <Img src="/brand/logo-art.jpg" alt="tee-mantraa" sizes="50vw" className="absolute inset-0 h-full w-full" imgClassName="object-contain" />
       </div>
       <div className="flex items-center justify-center px-5 py-16">
         <div className="w-full max-w-md">
